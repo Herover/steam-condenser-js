@@ -35,6 +35,9 @@ server.initialize()
   .then(function(gravity) {
     console.log(gravity);
   })
+  .then(function() {
+    server.disconnect();
+  })
   .catch(function(e) {
     console.log("Error", e);
   });

@@ -1,6 +1,6 @@
 {
   "name": "steam-condenser",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Javascript port of steam-condenser.",
   "main": "lib/SteamCondenser.js",
   "keywords": ["srcds", "steam", "goldsrc", "source", "steam-condenser", "steamcondenser"],
