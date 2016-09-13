@@ -9,5 +9,9 @@
   },
   "directories": {
     "lib": "./lib"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Herover/steam-condenser-js.git"
   }
 }
