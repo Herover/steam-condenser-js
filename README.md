@@ -39,8 +39,25 @@ server.initialize()
     server.disconnect();
   })
   .catch(function(e) {
+    server.distonnect(); // Always disconnect server
     console.log("Error", e);
   });
+
+/*
+ It appears that the steam master servers sometimes doesn't return the final
+ ending 0.0.0.0 IP to tell us that there's no more servers. Expect to catch
+ Errors with the message "TimeoutException" even though the list is complete.
+*/
+var ms = SteamCondenser.Servers.SourceServer.getMaster();
+ms.socket.timeout = 500;
+ms.getServers(SteamCondenser.Servers.MasterServer.REGION_ALL, "\\map\\de_dust")
+  .then(function(servers){
+    console.log("Got servers", servers);
+  })
+  .catch(function(e){
+    ms.disconnect();
+    console.log("Exception", e, e.servers);
+  })
 ```
 
 ## Status and limitations
