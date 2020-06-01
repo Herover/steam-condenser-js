@@ -3,6 +3,10 @@
   "version": "0.1.1",
   "description": "Javascript port of steam-condenser.",
   "main": "lib/SteamCondenser.js",
+  "scripts": {
+    "build": "tsc",
+    "tsc": "tsc"
+  },
   "keywords": [
     "srcds",
     "steam",
@@ -21,5 +25,9 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/Herover/steam-condenser-js.git"
+  },
+  "devDependencies": {
+    "@types/node": "^14.0.6",
+    "typescript": "^3.9.3"
   }
 }
