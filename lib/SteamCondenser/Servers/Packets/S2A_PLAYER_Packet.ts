@@ -1,6 +1,6 @@
 "use strict";
 var SteamPacket = require("./SteamPacket.js"),
-    SteamPlayer = require("./../SteamPlayer.js");
+    SteamPlayer = require("../SteamPlayer.js");
 
 module.exports = class S2A_PLAYER_Packet extends SteamPacket {
   constructor(contentData) {

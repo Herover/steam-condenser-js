@@ -1,8 +1,8 @@
 "use strict";
 var SteamSocket = require("./SteamSocket.js"),
-    TCPSocket = require("./../../TCPSocket.js"),
+    TCPSocket = require("../../TCPSocket.js"),
     RCONPacketFactory = require("./../Packets/RCON/RCONPacketFactory"),
-    ByteBuffer = require("./../../ByteBuffer.js");
+    ByteBuffer = require("../../ByteBuffer.js");
 
 class RCONSocket extends SteamSocket {
   constructor(ipAddress, portNumber) {

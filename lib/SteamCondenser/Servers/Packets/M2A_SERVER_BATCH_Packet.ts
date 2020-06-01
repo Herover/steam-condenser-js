@@ -1,6 +1,6 @@
 "use strict";
 var SteamPacket = require("./SteamPacket.js"),
-    MasterServer = require("./../MasterServer.js");
+    MasterServer = require("../MasterServer.js");
 
 module.exports = class M2A_SERVER_BATCH_Packet extends SteamPacket {
   constructor(contentData) {

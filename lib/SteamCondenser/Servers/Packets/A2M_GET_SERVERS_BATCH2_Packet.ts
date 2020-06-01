@@ -1,6 +1,6 @@
 "use strict";
 var SteamPacket = require("./SteamPacket.js"),
-    MasterServer = require("./../MasterServer.js");
+    MasterServer = require("../MasterServer.js");
 
 module.exports = class A2M_GET_SERVERS_BATCH2_Packet extends SteamPacket {
   constructor(regionCode, startIp, filter) {

@@ -1,5 +1,5 @@
 "use strict";
-var UDPSocket = require("./../../UDPSocket.js"),
+var UDPSocket = require("../../UDPSocket.js"),
     SteamSocket = require("./SteamSocket.js"),
     SteamPacketFactory = require("./../Packets/SteamPacketFactory.js");
 

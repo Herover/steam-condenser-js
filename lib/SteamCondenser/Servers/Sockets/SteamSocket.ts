@@ -1,5 +1,5 @@
 "use strict";
-var ByteBuffer = require("./../../ByteBuffer.js");
+var ByteBuffer = require("../../ByteBuffer.js");
     
 class SteamSocket {
   setTimeout(timeout) {

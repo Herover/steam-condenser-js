@@ -1,7 +1,7 @@
 "use strict";
-var UDPSocket = require("./../../UDPSocket.js"),
+var UDPSocket = require("../../UDPSocket.js"),
     SteamSocket = require("./SteamSocket.js"),
-    ByteBuffer = require("./../../ByteBuffer.js"),
+    ByteBuffer = require("../../ByteBuffer.js"),
     SteamPacketFactory = require("./../Packets/SteamPacketFactory.js");
 
 class MasterServerSocket extends SteamSocket {
