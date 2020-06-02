@@ -1,8 +1,8 @@
 "use strict";
-var SteamPacket = require("./SteamPacket.js");
+import SteamPacket from "./SteamPacket.js";
 
-module.exports = class A2S_RULES_Packet extends SteamPacket {
-  constructor(challengeNumber) {
+export default class A2S_RULES_Packet extends SteamPacket {
+  constructor(challengeNumber: number) {
     if(typeof challengeNumber == "undefined") {
       challengeNumber = -0x01; // This means 0xFFFFFFFF
     }

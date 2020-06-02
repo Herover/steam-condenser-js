@@ -1,9 +1,11 @@
 'use strict';
-var Socket = require("./Socket.js");
-var dgram = require("dgram");
+import Socket from "./Socket";
+import dgram from "dgram";
 
-module.exports = class UDPSocket extends Socket {
-  constructor(address, port) {
+export default class UDPSocket extends Socket {
+  protected socket?: dgram.Socket;
+
+  constructor(address: string, port: number) {
     super(address, port);
   }
   
@@ -17,6 +19,10 @@ module.exports = class UDPSocket extends Socket {
   
   close() {
     return new Promise((resolve, reject) => {
+      if (typeof this.socket === "undefined") {
+        throw new Error("socket is undefined")
+      }
+
       this.socket.close();
       this.socket.on("close", () => {
         this.open = false;
@@ -25,12 +31,16 @@ module.exports = class UDPSocket extends Socket {
     })
   }
   
-  send(buffer) {
+  send(buffer: Buffer | any): Promise<void> { // TODO: remove or replace any type
     if(typeof buffer.toBuffer == "function") buffer = buffer.toBuffer();
     
     // console.log("udpsocket.js send", buffer);
     
     return new Promise((resolve, reject) => {
+      if (typeof this.socket === "undefined") {
+        throw new Error("socket is undefined")
+      }
+
       this.socket.send(buffer, 0, buffer.length, this.port, this.ipAddress, function(err) {
         if(err) {
           reject(err);
@@ -42,9 +52,13 @@ module.exports = class UDPSocket extends Socket {
     });
   }
   
-  recv(fn) {
+  recv(fn: (buffer: Buffer, rinfo: any) => boolean) {
     let returned = false;
     return new Promise((resolve, reject) => {
+      if (typeof this.socket === "undefined") {
+        throw new Error("socket is undefined")
+      }
+    
       this.socket.on("message", (data, rinfo) => {
         if(returned) {
           // TODO: why do we recieve too many packets sometimes?

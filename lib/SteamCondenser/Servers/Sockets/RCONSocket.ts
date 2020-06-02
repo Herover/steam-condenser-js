@@ -1,15 +1,15 @@
 "use strict";
-var SteamSocket = require("./SteamSocket.js"),
-    TCPSocket = require("../../TCPSocket.js"),
-    RCONPacketFactory = require("./../Packets/RCON/RCONPacketFactory"),
-    ByteBuffer = require("../../ByteBuffer.js");
+import SteamSocket from "./SteamSocket.js";
+import TCPSocket from "../../TCPSocket.js";
+import RCONPacketFactory from "../Packets/RCON/RCONPacketFactory";
+import ByteBuffer from "../../ByteBuffer.js";
+import SteamPacket from "../Packets/SteamPacket.js";
+import RCONPacket from "../Packets/RCON/RCONPacket.js";
 
-class RCONSocket extends SteamSocket {
-  constructor(ipAddress, portNumber) {
+export default class RCONSocket extends SteamSocket {
+  constructor(ipAddress: string, portNumber: number) {
     super(ipAddress, portNumber);
-    this.buffer = ByteBuffer.allocate(1400);
-    
-    
+    this.buffer = ByteBuffer.Allocate(1400);
   }
   
   close() {
@@ -19,18 +19,18 @@ class RCONSocket extends SteamSocket {
     return new Promise((resolve) => {resolve();});
   }
   
-  send(dataPacket) {
+  send(dataPacket: RCONPacket) {
     var supersend = super.send;
     var ssend = () => {return supersend.call(this, dataPacket)};
     if(typeof this.socket == "undefined" || !this.socket.isOpen()) {
       this.socket = new TCPSocket(this.ipAddress, this.portNumber);
-      return this.socket.connect(this.ipAddress, this.portNumber, SteamSocket.timeout)
-        .then(() => {return ssend.call();});
+      return this.socket.connect()
+        .then(() => {return ssend.call(this);});
     }
     else return ssend();
   }
   
-  getReply() {
+  getReply(): Promise<RCONPacket> {
     var packetSize, remainingBytes = 4, packetData = Buffer.from("");
     /*return this.receivePacket(4)
       .then(function(bytes) {
@@ -40,7 +40,7 @@ class RCONSocket extends SteamSocket {
           return null;
         }*/
         
-        var rec = () => {
+        var rec = (): Promise<RCONPacket> => {
           return new Promise((resolve, reject) => {
             if(remainingBytes > 0) {
               this.receivePacket(4096 ) // 0
@@ -59,7 +59,7 @@ class RCONSocket extends SteamSocket {
                 });
             }
             else {
-              var packet = RCONPacketFactory.getPacketFromData(packetData);
+              var packet = RCONPacketFactory.GetPacketFromData(packetData);
               resolve(packet);
             }
           });
@@ -72,5 +72,3 @@ class RCONSocket extends SteamSocket {
       })*/
   }
 }
-
-module.exports = RCONSocket;

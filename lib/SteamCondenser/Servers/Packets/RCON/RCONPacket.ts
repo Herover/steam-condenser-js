@@ -1,8 +1,8 @@
 'use strict';
-var Packet = require("./../Packet.js");
+import Packet from "./../Packet";
 
-class RCONPacket extends Packet{
-  constructor(id, body, type) {
+export default class RCONPacket extends Packet{
+  constructor(id: number, body: Buffer | string, type: number) {
     super(new Buffer(Buffer.byteLength(body) + 14))
     this._writeLong(this.buffer.length - 4);
     this._writeLong(id);
@@ -33,5 +33,3 @@ class RCONPacket extends Packet{
     return txt;
   }
 }
-
-module.exports = RCONPacket;

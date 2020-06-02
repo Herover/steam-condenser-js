@@ -1,9 +1,9 @@
 "use strict";
-var SteamPacket = require("./SteamPacket.js");
+import SteamPacket from"./SteamPacket";
 
-module.exports = class A2S_INFO_Packet extends SteamPacket {
+export default class A2S_INFO_Packet extends SteamPacket {
   constructor() {
-    super(SteamPacket.A2S_INFO_HEADER, new Buffer("Source Engine Query\0"));
+    super(SteamPacket.A2S_INFO_HEADER, Buffer.from("Source Engine Query\0"));
   }
 };
 /*

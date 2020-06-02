@@ -1,8 +1,8 @@
 "use strict";
-var SteamPacket = require("./SteamPacket.js");
+import SteamPacket from "./SteamPacket";
 
-module.exports = class A2S_PLAYER_Packet extends SteamPacket {
-  constructor(challengeNumber) {
+export default class A2S_PLAYER_Packet extends SteamPacket {
+  constructor(challengeNumber?: number) {
     if(typeof challengeNumber == "undefined") {
       challengeNumber = -1; // This is 0xFFFFFFFF
     }

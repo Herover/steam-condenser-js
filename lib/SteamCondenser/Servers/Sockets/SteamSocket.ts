@@ -1,12 +1,24 @@
 "use strict";
-var ByteBuffer = require("../../ByteBuffer.js");
+import ByteBuffer from "../../ByteBuffer.js";
+import UDPSocket from "../../UDPSocket.js";
+import SteamPacket from "../Packets/SteamPacket.js";
+import TCPSocket from "../../TCPSocket.js";
+import RCONPacket from "../Packets/RCON/RCONPacket.js";
     
-class SteamSocket {
-  setTimeout(timeout) {
+export default class SteamSocket {
+  protected ipAddress: string;
+  protected portNumber: number;
+
+  protected socket: UDPSocket | TCPSocket;
+  protected buffer: ByteBuffer = new ByteBuffer();;
+
+  protected timeout: number;
+
+  setTimeout(timeout: number) {
     this.timeout = timeout;
   }
   
-  constructor(ipAddress, portNumber) {
+  constructor(ipAddress: string, portNumber: number) {
     if(typeof portNumber == "undefined") {
       portNumber = 27015;
     }
@@ -14,11 +26,13 @@ class SteamSocket {
     this.ipAddress = ipAddress;
     this.portNumber = portNumber;
 
+    this.socket = new UDPSocket(ipAddress, portNumber);
+
     this.timeout = 15000;
   }
   
   connect() {
-    return this.socket.connect(this.ipAddress, this.portNumber, 0);
+    return this.socket.connect();
   }
   
   close() {
@@ -30,9 +44,9 @@ class SteamSocket {
     }
   }
   
-  getReply() {throw new Error("Not implemented.");}
+  getReply(): Promise<SteamPacket | RCONPacket> {throw new Error("Not implemented.");}
   
-  receivePacket(bufferLength) {
+  receivePacket(bufferLength?: number) {
     if(typeof bufferLength == "undefined") {
       bufferLength = 0;
     }
@@ -40,7 +54,7 @@ class SteamSocket {
     if(bufferLength == 0) {
       this.buffer.clear();
     } else {
-      this.buffer = ByteBuffer.allocate(bufferLength);
+      this.buffer = ByteBuffer.Allocate(bufferLength);
     }
 
     return this.socket.recv((data) => {
@@ -63,9 +77,7 @@ class SteamSocket {
     });
   }
   
-  send(dataPacket) {
+  send(dataPacket: SteamPacket | RCONPacket) {
     return this.socket.send(dataPacket.toBuffer());
   }
 }
-
-module.exports = SteamSocket;

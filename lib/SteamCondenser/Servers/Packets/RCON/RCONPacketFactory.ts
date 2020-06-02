@@ -1,8 +1,8 @@
-var Packet = require("./../Packet.js"); // FIXME
-var SERVERDATA_RESPONSE_VALUE_Packet = require("./RCON_SERVERDATA_RESPONSE_VALUE_Packet.js"),
-    SERVERDATA_AUTH_RESPONSE_Packet = require("./RCON_SERVERDATA_AUTH_RESPONSE_Packet.js");
-var RCONPacketFactory = {
-  getPacketFromData: function(buffer) {
+import SERVERDATA_RESPONSE_VALUE_Packet from "./RCON_SERVERDATA_RESPONSE_VALUE_Packet";
+import SERVERDATA_AUTH_RESPONSE_Packet from "./RCON_SERVERDATA_AUTH_RESPONSE_Packet";
+
+export default class RCONPacketFactory {
+  static GetPacketFromData(buffer: Buffer) {
     //var size = buffer.readInt32LE(0);
     var requestID = buffer.readInt32LE(0);
     var type = buffer.readInt32LE(4);
@@ -20,5 +20,3 @@ var RCONPacketFactory = {
     }
   }
 }
-
-module.exports = RCONPacketFactory

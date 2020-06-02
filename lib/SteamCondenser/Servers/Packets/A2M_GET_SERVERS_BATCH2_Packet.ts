@@ -1,9 +1,13 @@
 "use strict";
-var SteamPacket = require("./SteamPacket.js"),
-    MasterServer = require("../MasterServer.js");
+import SteamPacket from "./SteamPacket";
+import MasterServer from "../MasterServer";
 
-module.exports = class A2M_GET_SERVERS_BATCH2_Packet extends SteamPacket {
-  constructor(regionCode, startIp, filter) {
+export default class A2M_GET_SERVERS_BATCH2_Packet extends SteamPacket {
+  private filter: string;
+  private regionCode: number;
+  private startIp: string;
+
+  constructor(regionCode: number, startIp: string, filter: string) {
     super(SteamPacket.A2M_GET_SERVERS_BATCH2_HEADER);
 
     if(typeof regionCode == "undefined") {

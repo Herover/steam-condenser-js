@@ -1,9 +1,9 @@
 "use strict";
-var S2A_INFO_BasePacket = require("./S2A_INFO_BasePacket.js"),
-    SteamPacket = require("./SteamPacket.js");
+import S2A_INFO_BasePacket from "./S2A_INFO_BasePacket";
+import SteamPacket from "./SteamPacket";
 
-class S2A_INFO2_Packet extends S2A_INFO_BasePacket {
-  constructor(data) {
+export default class S2A_INFO2_Packet extends S2A_INFO_BasePacket {
+  constructor(data: Buffer) {
     super(SteamPacket.S2A_INFO2_HEADER, data);
     
     this.info['networkVersion'] = this.contentData.getByte();
@@ -20,6 +20,7 @@ class S2A_INFO2_Packet extends S2A_INFO_BasePacket {
     this.info['passwordProtected'] = this.contentData.getByte() == 1;
     this.info['secureServer'] = this.contentData.getByte() == 1;
     this.info['gameVersion'] = this.contentData.getString();
+
     if(this.contentData.remaining() > 0) {
       var extraDataFlag = this.contentData.getByte();
       if (extraDataFlag & S2A_INFO2_Packet.EDF_GAME_PORT) {
@@ -40,12 +41,10 @@ class S2A_INFO2_Packet extends S2A_INFO_BasePacket {
       }
     }
   }
-};
 
-S2A_INFO2_Packet.EDF_GAME_ID     = 0x01;
-S2A_INFO2_Packet.EDF_GAME_PORT   = 0x80;
-S2A_INFO2_Packet.EDF_SERVER_ID   = 0x10;
-S2A_INFO2_Packet.EDF_SERVER_TAGS = 0x20;
-S2A_INFO2_Packet.EDF_SOURCE_TV   = 0x40;
-
-module.exports = S2A_INFO2_Packet;
+  static EDF_GAME_ID     = 0x01;
+  static EDF_GAME_PORT   = 0x80;
+  static EDF_SERVER_ID   = 0x10;
+  static EDF_SERVER_TAGS = 0x20;
+  static EDF_SOURCE_TV   = 0x40;
+}

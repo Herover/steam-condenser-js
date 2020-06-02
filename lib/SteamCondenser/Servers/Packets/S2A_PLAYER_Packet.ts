@@ -1,9 +1,11 @@
 "use strict";
-var SteamPacket = require("./SteamPacket.js"),
-    SteamPlayer = require("../SteamPlayer.js");
+import SteamPacket from "./SteamPacket";
+import SteamPlayer from "../SteamPlayer";
 
-module.exports = class S2A_PLAYER_Packet extends SteamPacket {
-  constructor(contentData) {
+export default class S2A_PLAYER_Packet extends SteamPacket {
+  private playerHash: SteamPlayer[];
+
+  constructor(contentData: Buffer) {
     if(typeof contentData == "undefined") {
       throw new Error("Wrong formatted S2A_PLAYER packet.");
     }
@@ -13,7 +15,7 @@ module.exports = class S2A_PLAYER_Packet extends SteamPacket {
     
     this.playerHash = [];
     
-    var playerData;
+    var playerData: any[];
     while(this.contentData.remaining() > 0) {
       playerData = [this.contentData.getByte(), this.contentData.getString(), this.contentData.getLong(), this.contentData.getFloat()];
       // id playerData[0] is always 0?

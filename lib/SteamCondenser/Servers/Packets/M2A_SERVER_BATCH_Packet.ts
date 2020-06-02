@@ -1,9 +1,11 @@
 "use strict";
-var SteamPacket = require("./SteamPacket.js"),
-    MasterServer = require("../MasterServer.js");
+import SteamPacket from "./SteamPacket";
+import MasterServer from "../MasterServer";
 
-module.exports = class M2A_SERVER_BATCH_Packet extends SteamPacket {
-  constructor(contentData) {
+export default class M2A_SERVER_BATCH_Packet extends SteamPacket {
+  private serverArray: string[];
+
+  constructor(contentData: Buffer) {
     super(MasterServer.M2A_SERVER_BATCH_HEADER, contentData);
     if(this.contentData.getByte() != 10) {
       throw new Error("Master query response is missing additional 0x0A byte.");

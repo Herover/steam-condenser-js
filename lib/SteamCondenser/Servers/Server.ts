@@ -1,19 +1,22 @@
 'use strict';
 
-module.exports = class Server {
-  constructor(address, port) {
+export default class Server {
+  protected ipAddress: string;
+  protected port: number;
+
+  constructor(address: string, port: number) {
     if(address.indexOf(":") != -1) {
       var parts = address.split(":");
       address = parts[0];
-      port = parts[1];
+      port = Number.parseInt(parts[1]);
     }
     this.ipAddress = address;
-    this.port = Number.parseInt(port);
+    this.port = port;
     
     //this.initSocket();
   }
   
   
   disconnect() {throw new Error("Not implemented disconnect");}
-  initSocket() {throw new Error("Not implemented initSocket");}
+  initSocket(): Promise<void> {throw new Error("Not implemented initSocket");}
 }

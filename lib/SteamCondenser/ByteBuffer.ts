@@ -1,10 +1,15 @@
 "use strict";
-var bignum = require("bignum");
+import bignum from "bignum";
 
-class ByteBuffer {
-  constructor(buffer) {
+export default class ByteBuffer {
+  private buffer: Buffer;
+  private capacity: number;
+  private mylimit: number;
+  private myposition: number;
+
+  constructor(buffer?: Buffer) {
     if(typeof buffer == "undefined") {
-      buffer = ""; // Empty buffer: note \0 byte?
+      buffer = Buffer.alloc(0); // Empty buffer: note \0 byte?
     }
     this.buffer = buffer;
     this.capacity = buffer.length;
@@ -30,7 +35,7 @@ class ByteBuffer {
     return this;
   }
   
-  get(length) {
+  get(length?: number) {
     if(typeof length == "undefined") {
       length = this.mylimit - this.myposition;
     }
@@ -91,7 +96,7 @@ class ByteBuffer {
     return txt;
   }
   
-  limit(newmylimit) {
+  limit(newmylimit: number) {
     if(typeof newmylimit == "undefined") {
       return this.mylimit;
     } else {
@@ -99,16 +104,18 @@ class ByteBuffer {
     }
   }
   
-  position(position) {
+  position(position?: number) {
     if(typeof position == "number") {
       this.myposition = position;
     }
-    else {
-      return this.myposition;
-    }
+    return this.myposition;
+  }
+
+  getBuffer() {
+    return this.buffer;
   }
   
-  put(source) {
+  put(source: Buffer) {
     source.copy(this.buffer, this.myposition);
     //this.buffer.write(source, this.myposition);
     this.myposition += source.length;
@@ -125,14 +132,12 @@ class ByteBuffer {
     
     return this;
   }
-}
+  
+  static Allocate = function(length: number) {
+    return new ByteBuffer(Buffer.alloc(length, 0x00));
+  }
 
-ByteBuffer.allocate = function(length) {
-  return new ByteBuffer(Buffer.alloc(length, 0x00));
+  static Wrap = function(buffer: Buffer) {
+    return new ByteBuffer(buffer);
+  }
 }
-
-ByteBuffer.wrap = function(buffer) {
-  return new ByteBuffer(buffer);
-}
-
-module.exports = ByteBuffer;

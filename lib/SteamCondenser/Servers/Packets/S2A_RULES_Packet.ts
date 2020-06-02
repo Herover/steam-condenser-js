@@ -1,15 +1,17 @@
 "use strict";
-var SteamPacket = require("./SteamPacket.js");
+import SteamPacket from "./SteamPacket.js";
 
-module.exports = class S2A_RULES_Packet extends SteamPacket {
-  constructor(contentData) {
+export default class S2A_RULES_Packet extends SteamPacket {
+  private rules: { [key:string]:string; } = {};
+
+  constructor(contentData: Buffer) {
+    super(SteamPacket.S2C_CHALLENGE_HEADER, contentData);
     if(typeof contentData == "undefined") {
       throw new Error("Wrong formatted S2A_RULES packet.");
     }
-    super(SteamPacket.S2C_CHALLENGE_HEADER, contentData);
     
     var rulesCount = this.contentData.getShort();
-    this.rulesArray = {}; //FIXME: Naming
+    this.rules = {};
     
     for(var x = 0; x < rulesCount; x++) {
       var rule  = this.contentData.getString(),
@@ -18,12 +20,11 @@ module.exports = class S2A_RULES_Packet extends SteamPacket {
       if(rule == "") {
         //break;
       }
-      
-      this.rulesArray[rule] = value;
+      this.rules[rule] = value;
     }
   }
   
   getRulesArray() {
-    return this.rulesArray;
+    return this.rules;
   }
 };

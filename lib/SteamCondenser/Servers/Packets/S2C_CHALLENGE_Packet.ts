@@ -1,8 +1,8 @@
 "use strict";
-var SteamPacket = require("./SteamPacket.js");
+import SteamPacket from "./SteamPacket.js";
 
-module.exports = class S2C_CHALLENGE_Packet extends SteamPacket {
-  constructor(challengeNumber) {
+export default class S2C_CHALLENGE_Packet extends SteamPacket {
+  constructor(challengeNumber: Buffer) {
     super(SteamPacket.S2C_CHALLENGE_HEADER, challengeNumber);
   }
   

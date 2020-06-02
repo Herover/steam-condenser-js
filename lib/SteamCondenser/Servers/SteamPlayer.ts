@@ -1,7 +1,24 @@
 "use strict";
 
-module.exports = class SteamPlayer {
-  constructor(id, name, score, connectTime) {
+export default class SteamPlayer {
+  private connectTime: number;
+  private id: string;
+  private name: string;
+  private score: number;
+  private extended: boolean;
+
+  private connectionId?: number;
+  private state?: string;
+  private steamId?: string;
+  private loss?: number;
+  private ping?: number;
+  private ipAddress?: string;
+  private clientPort?: number;
+  private rate?: number;
+
+
+
+  constructor(id: string, name: string, score: number, connectTime: number) {
   this.connectTime = connectTime;
   this.id = id;
   this.name = name;
@@ -18,9 +35,9 @@ module.exports = class SteamPlayer {
    * @throws SteamCondenserException if the information belongs to another
    *     player
    */
-  addInformation(playerData) {
+  addInformation(playerData: any) {
     if(playerData['name'] != this.name) {
-      throw new SteamCondenserException('Information to add belongs to a different player.');
+      throw new Error('Information to add belongs to a different player.');
     }
 
     this.extended = true;

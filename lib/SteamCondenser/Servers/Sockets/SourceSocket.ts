@@ -1,11 +1,12 @@
 "use strict";
-var UDPSocket = require("../../UDPSocket.js"),
-    SteamSocket = require("./SteamSocket.js"),
-    SteamPacketFactory = require("./../Packets/SteamPacketFactory.js");
+import UDPSocket from "../../UDPSocket";
+import SteamSocket from "./SteamSocket";
+import SteamPacketFactory from "./../Packets/SteamPacketFactory";
+import SteamPacket from "../Packets/SteamPacket";
 
-class SourceSocket extends SteamSocket {
+export default class SourceSocket extends SteamSocket {
   
-  constructor(ipAddress, portNumber) {
+  constructor(ipAddress: string, portNumber: number) {
     if(typeof portNumber == "undefined") {
       portNumber = 27015;
     }
@@ -14,19 +15,20 @@ class SourceSocket extends SteamSocket {
     this.socket = new UDPSocket(ipAddress, portNumber);
   }
   
-  getReply() {
+  getReply(): Promise<SteamPacket> {
     var isCompressed = false,
         receivedPackets = 0,
         packet,
         requestId,
         packetCount,
         packetNumber,
-        splitPackets = [],
-        splitSize, packetChecksum, bytesRead;
+        splitPackets: Buffer[] = [],
+        packetChecksum: number,
+        splitSize, bytesRead;
     return this.receivePacket(1400)
       .then((bytes) => {
         bytesRead = bytes;
-        var handleMultiPacket = (bytes) => {
+        var handleMultiPacket = (bytes: number): Promise<void> => {
           return new Promise((resolve, reject) => {
             bytesRead = bytes;
             
@@ -82,13 +84,14 @@ class SourceSocket extends SteamSocket {
         }
         
         return new Promise((resolve, reject) => {
-          if(this.buffer.getLong() == -2) {
+          var x = this.buffer.getLong();
+          if(x == -2) {
             return handleMultiPacket(bytes)
               .then(() => {
                 if(isCompressed) {
-                  packet = SteamPacketFactory.reassemblePacket(splitPackets, true, packetChecksum);
+                  packet = SteamPacketFactory.ReassemblePacket(splitPackets, true, packetChecksum);
                 } else {
-                  packet = SteamPacketFactory.reassemblePacket(splitPackets);
+                  packet = SteamPacketFactory.ReassemblePacket(splitPackets);
                 }
                 resolve(packet);
               })
@@ -96,7 +99,7 @@ class SourceSocket extends SteamSocket {
                 reject(e);
               });
           } else {
-            packet = SteamPacketFactory.getPacketFromData(this.buffer.get());
+            packet = SteamPacketFactory.GetPacketFromData(this.buffer.get());
             
             resolve(packet);
           }
@@ -104,5 +107,3 @@ class SourceSocket extends SteamSocket {
       });
     }
 }
-
-module.exports = SourceSocket;

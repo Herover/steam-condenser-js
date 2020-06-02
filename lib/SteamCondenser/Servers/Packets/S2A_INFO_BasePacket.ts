@@ -1,8 +1,10 @@
 "use strict";
-var SteamPacket = require("./SteamPacket.js");
+import SteamPacket from "./SteamPacket";
 
-module.exports = class S2A_INFO_BasePacket extends SteamPacket {
-  constructor(headerData, contentData) {
+export default class S2A_INFO_BasePacket extends SteamPacket {
+  protected info: any;
+
+  constructor(headerData: number, contentData: Buffer) {
     super(headerData, contentData);
     this.info = {};
   }

@@ -1,18 +1,30 @@
 'use strict';
 
-var Server = require("./Server.js"),
-    S2C_CHALLENGE_Packet = require("./Packets/S2C_CHALLENGE_Packet.js"),
-    S2A_INFO_BasePacket = require("./Packets/S2A_INFO_BasePacket.js"),
-    S2A_PLAYER_Packet = require("./Packets/S2A_PLAYER_Packet.js"),
-    S2A_RULES_Packet = require("./Packets/S2A_RULES_Packet.js"),
-    A2S_PLAYER_Packet = require("./Packets/A2S_PLAYER_Packet.js"),
-    A2S_INFO_Packet = require("./Packets/A2S_INFO_Packet.js"),
-    A2S_RULES_Packet = require("./Packets/A2S_RULES_Packet.js")
-;
+import Server from "./Server";
+import S2C_CHALLENGE_Packet from "./Packets/S2C_CHALLENGE_Packet";
+import S2A_INFO_BasePacket from "./Packets/S2A_INFO_BasePacket";
+import S2A_PLAYER_Packet from "./Packets/S2A_PLAYER_Packet";
+import S2A_RULES_Packet from "./Packets/S2A_RULES_Packet";
+import A2S_PLAYER_Packet from "./Packets/A2S_PLAYER_Packet";
+import A2S_INFO_Packet from "./Packets/A2S_INFO_Packet";
+import A2S_RULES_Packet from "./Packets/A2S_RULES_Packet";
+import Packet from "./Packets/Packet";
+import SteamPacket from "./Packets/SteamPacket";
+import Socket from "../Socket";
+import SteamSocket from "./Sockets/SteamSocket";
+import RCONPacket from "./Packets/RCON/RCONPacket";
 
-class GameServer extends Server{
+export default class GameServer extends Server{
+  protected rconAuthenticated: boolean;
+  protected ping: any;
+  protected playerHash: any;
+  protected rulesHash: any;
+  protected infoHash: any;
   
-  getPlayerStatusAttributes(statusHeader) {
+  protected challengeNumber: number = -1;
+  protected socket?: SteamSocket;
+
+  getPlayerStatusAttributes(statusHeader: string) {
     var statusAttributes = [];
     var split = statusHeader.split(/\s+/);
     for(var i = 0; i < split.length; i ++) {
@@ -31,7 +43,7 @@ class GameServer extends Server{
     return statusAttributes;
   }
   
-  splitPlayerStatus(attributes, playerStatus) {
+  splitPlayerStatus(attributes: string[], playerStatus: string) {
     if(attributes[0] != "userid") {
       playerStatus = playerStatus.replace(/^\d+ +/, "");
     }
@@ -44,13 +56,13 @@ class GameServer extends Server{
                .filter((l) => {return l != "";});
     // TODO: Why?
     if(attributes.length > data.length && attributes.includes("state")) {
-      data.splice(3, 0, null, null, null);
+      data.splice(3, 0);
     }
     else if(attributes.length < data.length) {
       data.splice(1, 1);
     }
     
-    var playerData = {};
+    var playerData: any = {};
     for(var part = 0; part < data.length; part ++) {
       playerData[attributes[part]] = data[part];
     }
@@ -58,7 +70,7 @@ class GameServer extends Server{
     return playerData;
   }
   
-  constructor(address, port) {
+  constructor(address: string, port: number) {
     super(address, port);
     
     this.rconAuthenticated = false;
@@ -75,7 +87,7 @@ class GameServer extends Server{
     });
   }
   
-  getPlayers(rconPassword) {
+  getPlayers(rconPassword: string) {
     return new Promise((resolve, reject) => {
       if(typeof this.playerHash == "undefined") {
         this.updatePlayers(rconPassword)
@@ -124,9 +136,9 @@ class GameServer extends Server{
       });
   }
   
-  handleResponseForRequest(requestType, repeatOnFailure) {
+  handleResponseForRequest(requestType: number, repeatOnFailure?: boolean): Promise<void> {
     if(typeof repeatOnFailure == "undefined") {repeatOnFailure = true;}
-    var expectedResponse, requestPacket;
+    var expectedResponse: Function, requestPacket: SteamPacket;
     switch(requestType) {
       case GameServer.REQUEST_CHALLENGE:
         expectedResponse = S2C_CHALLENGE_Packet;
@@ -147,12 +159,22 @@ class GameServer extends Server{
       default:
         throw new Error("Called with wrong request type.");
     }
+
+    if (typeof this.socket === "undefined") {
+      throw new Error("socket not set up");
+    }
     
     return this.socket.send(requestPacket)
       .then(() => {
+        if (typeof this.socket === "undefined") {
+          throw new Error("socket not set up");
+        }
         return this.socket.getReply();
       })
-      .then((responsePacket) => {
+      .then((responsePacket: SteamPacket | RCONPacket) => {
+        if (!(responsePacket instanceof SteamPacket)) {
+          throw new Error("Invalid response packet " + responsePacket);
+        }
         if(responsePacket instanceof S2A_INFO_BasePacket) {
           this.infoHash = responsePacket.getInfo();
         } else if(responsePacket instanceof S2A_PLAYER_Packet) {
@@ -188,19 +210,25 @@ class GameServer extends Server{
     return this.rconAuthenticated;
   }
   
-  rconAuth(password){throw new Error("Not implemented.");}
-  rconExec(password){throw new Error("Not implemented.");}
+  rconAuth(password: string): Promise<boolean> {throw new Error("Not implemented.");}
+  rconExec(password: string): Promise<string> {throw new Error("Not implemented.");}
   
   updateChallengeNumber() {
     return this.handleResponseForRequest(GameServer.REQUEST_CHALLENGE);
   }
   
   updatePing() {
-    var startTime, endTime;
+    var startTime: number, endTime: number;
+    if (typeof this.socket === "undefined") {
+      throw new Error("socket not set up");
+    }
     return this.socket.send(new A2S_INFO_Packet())
       .then(() => {
         startTime = new Date().getTime();
         
+        if (typeof this.socket === "undefined") {
+          throw new Error("socket not set up");
+        }
         return  this.socket.getReply();
       })
       .then(() => {
@@ -214,12 +242,12 @@ class GameServer extends Server{
       });
   }
   
-  updatePlayers(rconPassword) {
+  updatePlayers(rconPassword?: string) {
     return this.handleResponseForRequest(GameServer.REQUEST_PLAYER)
-      .then(() => {
+      .then((): Promise<string> => {
         if(!this.rconAuthenticated) {
           if(typeof rconPassword == "undefined") {
-            return false;
+            return Promise.resolve("");
           }
           return this.rconAuth(rconPassword)
             .then(() => {
@@ -231,8 +259,8 @@ class GameServer extends Server{
         }
         return this.rconExec("status");
       })
-      .then((res) => {
-        if(typeof res != "undefined" && res == false) {
+      .then((res?: string) => {
+        if(typeof res === "undefined" || !res) {
           return false;
         }
         
@@ -258,7 +286,7 @@ class GameServer extends Server{
         
         return this.playerHash;
       })
-      .catch((e) => {throw(e);});
+      .catch((e: Error) => {throw(e);});
   }
   
   updateRules() {
@@ -304,9 +332,10 @@ class GameServer extends Server{
     
     return returnString;
   }
+  
+  static REQUEST_CHALLENGE = 0;
+  static REQUEST_INFO      = 1;
+  static REQUEST_PLAYER    = 2;
+  static REQUEST_RULES     = 3;
 }
-GameServer.REQUEST_CHALLENGE = 0;
-GameServer.REQUEST_INFO      = 1;
-GameServer.REQUEST_PLAYER    = 2;
-GameServer.REQUEST_RULES     = 3;
 module.exports = GameServer;

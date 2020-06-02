@@ -1,9 +1,12 @@
 'use strict';
-var Socket = require("./Socket.js");
-var net = require('net');
+import Socket from "./Socket";
+import net from 'net';
+import SteamPacket from "./Servers/Packets/SteamPacket";
 
-module.exports = class UDPSocket extends Socket {
-  constructor(address, port) {
+export default class TCPSocket extends Socket {
+  protected socket?: net.Socket;
+
+  constructor(address: string, port: number) {
     super(address, port);
   }
   
@@ -26,17 +29,24 @@ module.exports = class UDPSocket extends Socket {
   
   close() {
     return new Promise((resolve, reject) => {
+      if (typeof this.socket === "undefined") {
+        throw new Error("socket is undefined")
+      }
       this.socket.on("end", () => resolve());
       this.socket.end();
     })
   }
   
-  send(buffer) {
-    if(typeof buffer.toBuffer == "function") buffer = buffer.toBuffer();
-    
+  send(data: Buffer | SteamPacket): Promise<void> { // TODO: remove or replace any type
+    var buffer: Buffer;
+    if(data instanceof SteamPacket) buffer = data.toBuffer();
+    else buffer = data;
      //console.log("tcpsocket.js send", buffer);
     
     return new Promise((resolve, reject) => {
+      if (typeof this.socket === "undefined") {
+        throw new Error("socket is undefined")
+      }
       this.socket.write(buffer, (err) => {
         if(err) {
           reject(err);
@@ -48,10 +58,13 @@ module.exports = class UDPSocket extends Socket {
     });
   }
   
-  recv(fn) {
+  recv(fn: (buffer: Buffer, rinfo: any) => boolean) {
     var returned = false;
     return new Promise((resolve, reject) => {
-      this.socket.on("data", (data, rinfo) => {
+      if (typeof this.socket === "undefined") {
+        throw new Error("socket is undefined")
+      }
+      this.socket.on("message", (data, rinfo) => {
         if(returned){
           return;
         }
