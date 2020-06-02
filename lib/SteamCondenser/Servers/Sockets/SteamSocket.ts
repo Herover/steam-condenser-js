@@ -46,7 +46,7 @@ export default class SteamSocket {
   
   getReply(): Promise<SteamPacket | RCONPacket> {throw new Error("Not implemented.");}
   
-  receivePacket(bufferLength?: number) {
+  async receivePacket(bufferLength?: number) {
     if(typeof bufferLength == "undefined") {
       bufferLength = 0;
     }
