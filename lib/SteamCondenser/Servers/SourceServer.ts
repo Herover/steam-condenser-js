@@ -83,68 +83,43 @@ export class SourceServer extends GameServer {
       });
   }
   
-  rconExec(command: string) {
+  async rconExec(command: string) {
     if(!this.rconAuthenticated) {
       throw new Error("RCONNoAuthException");
     }
     
     var isMulti = false,
+        responsePacket: any,
         response: string[] = [];
     if (typeof this.rconSocket === "undefined") {
       throw new Error("rconSocket not ready");
     }
-    return this.rconSocket.send(new RCON_SERVERDATA_EXECCOMMAND_Packet(this.rconRequestId, command))
-      .then(() => {
-        var handleReply = (): Promise<string> => {
-          if (typeof this.rconSocket === "undefined") {
-            throw new Error("rconSocket not set up");
-          }
-          return this.rconSocket.getReply()
-            .then((responsePacket: any) => { // TODO: Fix type
-              if(typeof responsePacket == "undefined" ||
-                  responsePacket instanceof RCON_SERVERDATA_AUTH_Packet) {
-                this.rconAuthenticated = false;
-                throw new Error("RCONNoAuthException");
-              }
-              
-              if(!isMulti && responsePacket.getResponse().length > 0) {
-                isMulti = true;
-                if (typeof this.rconSocket === "undefined") {
-                  throw new Error("rconSocket not set up");
-                }
-                this.rconSocket.send(new RCON_Terminator(this.rconRequestId));
-              }
-              
-              // Check if full response have been received
-              // FIXME: This mirrors code from steam-condenser-php, are we 
-              //        actually testing this, or if all expected packets are 
-              //        received? 
-              // https://developer.valvesoftware.com/wiki/Source_RCON_Protocol#Multiple-packet_Responses
-              if(
-                  isMulti
-              //&& typeof response[response.length - 2] != "undefined"
-              //&& typeof response[response.length - 1] != "undefined"
-              && responsePacket.body == "\u0000\u0000"
-              || !isMulti
-              ) {
-                console.log("DID IT WORK?", response.join);
-                return response.join();
-              }
-              else {
-                // FIXME: RCON packets after the first full RCON response sometimes send this packet.
-                // I don't know what it indicates.
-                if(responsePacket.body == "\u0000\u0001\u0000\u0000\u0000\u0000") {return handleReply();}
-                response.push(responsePacket.body);
-                return handleReply();
-              }
-            })
+    await this.rconSocket.send(new RCON_SERVERDATA_EXECCOMMAND_Packet(this.rconRequestId, command));
+    
+    do {
+      responsePacket = await this.rconSocket.getReply();
+      
+      if(typeof responsePacket == "undefined" || responsePacket instanceof RCON_SERVERDATA_AUTH_Packet) {
+        this.rconAuthenticated = false;
+        throw new Error("RCONNoAuthException");
+      }
+      
+      if(!isMulti && responsePacket.getResponse().length > 0) {
+        isMulti = true;
+        if (typeof this.rconSocket === "undefined") {
+          throw new Error("rconSocket not set up");
         }
-        return handleReply();
-      })
-      .then(() => {
-        return response.join().trim();
-      })
-         
+        this.rconSocket.send(new RCON_Terminator(this.rconRequestId));
+      }
+
+      response.push(responsePacket.getResponse());
+    } while (isMulti
+      //&& typeof response[response.length - 2] != "undefined"
+      //&& typeof response[response.length - 1] != "undefined"
+      && responsePacket.body == "\u0000\u0000"
+      || !isMulti);
+
+      return response.join().trim(); 
   }
 
   static GetMaster = function() {

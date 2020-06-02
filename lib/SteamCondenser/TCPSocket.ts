@@ -58,18 +58,18 @@ export default class TCPSocket extends Socket {
     });
   }
   
-  recv(fn: (buffer: Buffer, rinfo: any) => boolean) {
+  recv(fn: (buffer: Buffer, rinfo?: any) => boolean) {
     var returned = false;
     return new Promise((resolve, reject) => {
       if (typeof this.socket === "undefined") {
         throw new Error("socket is undefined")
       }
-      this.socket.on("message", (data, rinfo) => {
+      this.socket.on("data", (data: Buffer) => {
         if(returned){
           return;
         }
 
-        var done = fn(data, rinfo);
+        var done = fn(data);
         if(done !== false) {
           returned = true;
           resolve(done);

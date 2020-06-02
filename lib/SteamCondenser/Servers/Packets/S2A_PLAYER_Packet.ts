@@ -16,6 +16,7 @@ export default class S2A_PLAYER_Packet extends SteamPacket {
     this.playerHash = [];
     
     var playerData: any[];
+
     while(this.contentData.remaining() > 0) {
       playerData = [this.contentData.getByte(), this.contentData.getString(), this.contentData.getLong(), this.contentData.getFloat()];
       // id playerData[0] is always 0?
