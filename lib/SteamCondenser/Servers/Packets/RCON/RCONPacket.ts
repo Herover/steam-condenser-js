@@ -3,7 +3,7 @@ import Packet from "./../Packet";
 
 export default class RCONPacket extends Packet{
   constructor(id: number, body: Buffer | string, type: number) {
-    super(new Buffer(Buffer.byteLength(body) + 14))
+    super(Buffer.alloc(Buffer.byteLength(body) + 14))
     this._writeLong(this.buffer.length - 4);
     this._writeLong(id);
     this._writeLong(type);
