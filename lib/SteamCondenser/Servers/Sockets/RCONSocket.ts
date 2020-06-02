@@ -43,7 +43,7 @@ export default class RCONSocket extends SteamSocket {
         var rec = (): Promise<RCONPacket> => {
           return new Promise((resolve, reject) => {
             if(remainingBytes > 0) {
-              this.receivePacket(4096 ) // 0
+              this.receivePacket(0)
                 .then((bytesRead) => {
                   packetSize = this.buffer.getLong();
                   remainingBytes = packetSize + 4;
