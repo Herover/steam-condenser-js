@@ -27,6 +27,7 @@
     "url": "https://github.com/Herover/steam-condenser-js.git"
   },
   "devDependencies": {
+    "@types/bignum": "0.0.29",
     "@types/node": "^14.0.6",
     "typescript": "^3.9.3"
   }
