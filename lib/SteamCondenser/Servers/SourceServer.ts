@@ -53,34 +53,30 @@ export class SourceServer extends GameServer {
       .then(() => { return; });
   }
   
-  rconAuth(password: string) {
+  async rconAuth(password: string) {
     this.rconRequestId = this.generateRconRequestId();
 
     if (typeof this.rconSocket === "undefined") {
       throw new Error("rconSocket not set up");
     }
     
-    return this.rconSocket.send(new RCON_SERVERDATA_AUTH_Packet(this.rconRequestId, password))
-      .then(()  => {
-        if (typeof this.rconSocket === "undefined") {
-          throw new Error("rconSocket not set up");
-        }
-        return this.rconSocket.getReply();
-      })
-      .then((reply: RCONPacket) => {
-        /*if(typeof reply == "undefined") {
-          throw new Error("RCONBanException");
-        }*/
-        if (typeof this.rconSocket === "undefined") {
-          throw new Error("rconSocket not set up");
-        }
-        return this.rconSocket.getReply();
-      })
-      .then((reply: RCONPacket) => {
-        //this.rconAuthenticated == reply.getRequestId() == this.rconRequestId;
-        this.rconAuthenticated = reply.ID == this.rconRequestId;
-        return this.rconAuthenticated;
-      });
+    await this.rconSocket.send(new RCON_SERVERDATA_AUTH_Packet(this.rconRequestId, password))
+
+    if (typeof this.rconSocket === "undefined") {
+      throw new Error("rconSocket not set up");
+    }
+    let reply = await this.rconSocket.getReply();
+    
+    /*if(typeof reply == "undefined") {
+      throw new Error("RCONBanException");
+    }*/
+    if (typeof this.rconSocket === "undefined") {
+      throw new Error("rconSocket not set up");
+    }
+    reply = await this.rconSocket.getReply();
+    
+    this.rconAuthenticated = reply.ID == this.rconRequestId;
+    return this.rconAuthenticated;
   }
   
   async rconExec(command: string) {
