@@ -1,9 +1,9 @@
 "use strict";
-import ByteBuffer from "../../ByteBuffer.js";
-import UDPSocket from "../../UDPSocket.js";
-import SteamPacket from "../Packets/SteamPacket.js";
-import TCPSocket from "../../TCPSocket.js";
-import RCONPacket from "../Packets/RCON/RCONPacket.js";
+import ByteBuffer from "../../ByteBuffer";
+import UDPSocket from "../../UDPSocket";
+import SteamPacket from "../Packets/SteamPacket";
+import TCPSocket from "../../TCPSocket";
+import RCONPacket from "../Packets/RCON/RCONPacket";
     
 export default class SteamSocket {
   protected ipAddress: string;

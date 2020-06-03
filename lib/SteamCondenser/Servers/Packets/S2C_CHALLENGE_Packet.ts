@@ -1,5 +1,5 @@
 "use strict";
-import SteamPacket from "./SteamPacket.js";
+import SteamPacket from "./SteamPacket";
 
 export default class S2C_CHALLENGE_Packet extends SteamPacket {
   constructor(challengeNumber: Buffer) {

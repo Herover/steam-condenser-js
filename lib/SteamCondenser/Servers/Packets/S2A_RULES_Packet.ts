@@ -1,5 +1,5 @@
 "use strict";
-import SteamPacket from "./SteamPacket.js";
+import SteamPacket from "./SteamPacket";
 
 export default class S2A_RULES_Packet extends SteamPacket {
   private rules: { [key:string]:string; } = {};

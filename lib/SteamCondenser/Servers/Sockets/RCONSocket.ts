@@ -1,10 +1,10 @@
 "use strict";
-import SteamSocket from "./SteamSocket.js";
-import TCPSocket from "../../TCPSocket.js";
+import SteamSocket from "./SteamSocket";
+import TCPSocket from "../../TCPSocket";
 import RCONPacketFactory from "../Packets/RCON/RCONPacketFactory";
-import ByteBuffer from "../../ByteBuffer.js";
-import SteamPacket from "../Packets/SteamPacket.js";
-import RCONPacket from "../Packets/RCON/RCONPacket.js";
+import ByteBuffer from "../../ByteBuffer";
+import SteamPacket from "../Packets/SteamPacket";
+import RCONPacket from "../Packets/RCON/RCONPacket";
 
 export default class RCONSocket extends SteamSocket {
   constructor(ipAddress: string, portNumber: number) {

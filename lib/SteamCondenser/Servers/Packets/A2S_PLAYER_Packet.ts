@@ -11,7 +11,7 @@ export default class A2S_PLAYER_Packet extends SteamPacket {
 };
 
 /*
-Packet = require("./Packet.js");
+Packet = require("./Packet");
 
 module.exports = class A2S_PLAYER_Packet extends Packet {
   constructor() {

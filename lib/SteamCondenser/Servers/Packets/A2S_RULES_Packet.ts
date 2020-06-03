@@ -1,5 +1,5 @@
 "use strict";
-import SteamPacket from "./SteamPacket.js";
+import SteamPacket from "./SteamPacket";
 
 export default class A2S_RULES_Packet extends SteamPacket {
   constructor(challengeNumber: number) {
@@ -11,7 +11,7 @@ export default class A2S_RULES_Packet extends SteamPacket {
   }
 };
 /*
-Packet = require("./Packet.js");
+Packet = require("./Packet");
 
 module.exports = class A2S_RULES_Packet extends Packet {
   constructor(challenge) {
