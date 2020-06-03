@@ -32,14 +32,6 @@ export default class RCONSocket extends SteamSocket {
   
   getReply(): Promise<RCONPacket> {
     var packetSize, remainingBytes = 4, packetData = Buffer.from("");
-    /*return this.receivePacket(4)
-      .then(function(bytes) {
-        if(bytes == 0) {
-          this.socket.close();
-          //console.log("boohoo");
-          return null;
-        }*/
-        
         var rec = (): Promise<RCONPacket> => {
           return new Promise((resolve, reject) => {
             if(remainingBytes > 0) {
@@ -65,10 +57,5 @@ export default class RCONSocket extends SteamSocket {
           });
         }
         return rec();
-      /*})
-      .catch((e) => {
-        // TODO: exception types
-        //console.log("RCONSocket getReply", e);
-      })*/
   }
 }
