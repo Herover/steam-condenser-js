@@ -8,14 +8,4 @@ export default class A2S_PLAYER_Packet extends SteamPacket {
     }
     super(SteamPacket.A2S_PLAYER_HEADER, challengeNumber);
   }
-};
-
-/*
-Packet = require("./Packet");
-
-module.exports = class A2S_PLAYER_Packet extends Packet {
-  constructor() {
-    super(Buffer.from([0xFF, 0xFF, 0xFF, 0xFF, 0x55, 0xFF, 0xFF, 0xFF, 0xFF]));
-  }
-};
-*/
+}
