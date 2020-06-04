@@ -59,6 +59,12 @@ export default class ByteBuffer {
     this.myposition += 2;
     return res;
   }
+  
+  getUShort() {
+    var res = this.buffer.readUInt16LE(this.myposition);
+    this.myposition += 2;
+    return res;
+  }
 
   getLong() {
     var res = this.buffer.readInt32LE(this.myposition);
