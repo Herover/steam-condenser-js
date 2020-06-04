@@ -15,23 +15,22 @@ export default class MasterServer extends Server {
     this.retries = 3;
   }
 
-  async getServers(regionCode: number, filter?: string, force?: boolean) {
-    if(typeof regionCode == "undefined") {
-      regionCode = MasterServer.REGION_ALL;
-    }
-    if(typeof filter == "undefined") {
-      filter = "";
-    }
-    if(typeof force == "undefined") {
-      force = false;
-    }
+  async getServers(regionCode: number = MasterServer.REGION_ALL, filter: string = "", force: boolean = false,
+    maxPages: number = 1, after: string = "0.0.0.0:0"
+  ) {
     if (typeof this.socket == "undefined") {
       await this.initSocket();
     }
 
+    // Allow unlimited loading
+    if (maxPages <= 0) {
+      maxPages = -1;
+    }
+
     let failCount = 0,
+        page = 0,
         finished = false,
-        lastResult = "0.0.0.0:0",
+        lastResult = after,
         serverArray: (string|number)[][] = [];
 
     while (true) {
@@ -44,6 +43,7 @@ export default class MasterServer extends Server {
             throw new Error("Socket not ready");
           }
           const serverStrArray = (await this.socket.getReply() as M2A_SERVER_BATCH_Packet).getServers();
+          page ++;
           for (const serverStr of serverStrArray) {
             lastResult = serverStr;
 
@@ -62,7 +62,7 @@ export default class MasterServer extends Server {
           }
         }
         await new Promise(resolve => setTimeout(resolve, 500))
-      } while (!finished);
+      } while (!finished && page == maxPages);
       break;
     }
 
