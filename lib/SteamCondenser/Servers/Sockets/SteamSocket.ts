@@ -44,7 +44,7 @@ export default class SteamSocket {
     }
   }
   
-  getReply(): Promise<SteamPacket | RCONPacket> {throw new Error("Not implemented.");}
+  getReply(): Promise<SteamPacket | RCONPacket | void> {throw new Error("Not implemented.");}
   
   async receivePacket(bufferLength?: number) {
     if(typeof bufferLength == "undefined") {
@@ -56,25 +56,15 @@ export default class SteamSocket {
     } else {
       this.buffer = ByteBuffer.Allocate(bufferLength);
     }
-
-    return this.socket.recv((data) => {
-      var bytesRead = 0;
-      this.buffer.put(data);
-      bytesRead ++;
-      //if(this.buffer.length == bufferLength || !(this.buffer.remaining() && data.length != bytesRead)) {
-      //if(this.buffer.remaining() >= 0 || !(this.buffer.remaining() && data.length != bytesRead)) {
-        //console.log("tt",this.buffer.position(), bufferLength, this.buffer.remaining(), data.length, bytesRead);
-      //  return false;
-      //} else {
-        return true;
-      //}
-    })
-    .then(() => {
-      var bytesRead = this.buffer.position();
-      this.buffer.rewind();
-      this.buffer.limit(bytesRead);
-      return bytesRead;
-    });
+    return this.socket.recvBytes(bufferLength)
+      .then((data) => {
+        this.buffer.clear();
+        this.buffer.put(data);
+        this.buffer = ByteBuffer.Wrap(data);
+        var bytesRead = data.length;
+        this.buffer.rewind();
+        return bytesRead;
+      });
   }
   
   send(dataPacket: SteamPacket | RCONPacket) {

@@ -15,7 +15,6 @@ export default class RCONPacketFactory {
         return new SERVERDATA_AUTH_RESPONSE_Packet(requestID);
         break;
       default:
-      console.log(buffer);
         throw new Error("Unknown packet type " + type);
     }
   }

@@ -26,9 +26,10 @@ export default class SourceSocket extends SteamSocket {
         packetChecksum = -1,
         splitSize, bytesRead;
 
-    const bytes = await this.receivePacket(1400);
-    bytesRead = bytes;
+    bytesRead = await this.receivePacket(0);
+
     if (this.buffer.getLong() == -2) {
+      let isMulti;
       do {
         requestId = this.buffer.getLong();
         packetCount = this.buffer.getByte();
@@ -41,7 +42,6 @@ export default class SourceSocket extends SteamSocket {
         } else {
           splitSize = this.buffer.getShort();
         }
-            
         splitPackets[packetNumber - 1] = Buffer.from(this.buffer.get());
         receivedPackets++;
 
@@ -52,8 +52,9 @@ export default class SourceSocket extends SteamSocket {
             // TODO: only handly timeouts silently
             bytesRead = 0;
           }
+        } else {
+          bytesRead = 0;
         }
-
       } while (bytesRead > 0 && this.buffer.getLong() == -2);
       
       if(isCompressed) {

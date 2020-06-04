@@ -2,8 +2,12 @@
 import Socket from "./Socket";
 import dgram from "dgram";
 
+const bufferSize = 4096;
+
 export default class UDPSocket extends Socket {
-  protected socket?: dgram.Socket;
+  protected socket: dgram.Socket = dgram.createSocket("udp4");
+  private buffer = Buffer.alloc(bufferSize);
+  private receivedBytes = 0;
 
   constructor(address: string, port: number) {
     super(address, port);
@@ -13,16 +17,17 @@ export default class UDPSocket extends Socket {
     return new Promise((resolve, reject) => {
       this.socket = dgram.createSocket("udp4");
       this.open = true;
+      this.buffer = Buffer.alloc(bufferSize);
+      this.socket.on("message", (data) => {
+        this.buffer = Buffer.concat([this.buffer.slice(0, this.receivedBytes), data]);
+        this.receivedBytes += data.length;
+      })
       resolve();
     });
   }
   
   close() {
     return new Promise((resolve, reject) => {
-      if (typeof this.socket === "undefined") {
-        throw new Error("socket is undefined")
-      }
-
       this.socket.close();
       this.socket.on("close", () => {
         this.open = false;
@@ -51,35 +56,62 @@ export default class UDPSocket extends Socket {
       });
     });
   }
-  
-  recv(fn: (buffer: Buffer, rinfo: any) => boolean) {
-    let returned = false;
-    return new Promise((resolve, reject) => {
-      if (typeof this.socket === "undefined") {
-        throw new Error("socket is undefined")
-      }
+
+  recvBytes(bytes: number = 0): Promise<Buffer> {
+    const id = Math.floor(Math.random()*10000);
+    const received = Buffer.alloc(bytes);
+    let stored = 0;
     
-      this.socket.on("message", (data, rinfo) => {
-        if(returned) {
-          // TODO: why do we recieve too many packets sometimes?
-          // Look into getPlayers maybe
+
+    return new Promise<Buffer>(resolve => {
+      const dataFn = () => {
+        if (this.receivedBytes > 0) {
+          if (bytes == 0) {
+            this.socket.off("message", dataFn);
+            this.receivedBytes = 0;
+            resolve(this.buffer);
+          } else {
+            const readBytes = Math.min(this.receivedBytes, bytes-stored);
+            this.buffer.copy(received, stored, 0, readBytes);
+            this.buffer.copyWithin(0, readBytes, this.receivedBytes);
+            this.receivedBytes -= readBytes;
+            stored += readBytes;
+            if (stored >= bytes) {
+              this.socket.off("message", dataFn);
+              resolve(received);
+            }
+          }
+        }
+      }
+      this.socket.on("message", dataFn);
+      dataFn();
+    });
+  }
+
+  recv(fn: (buffer: Buffer, rinfo?: any) => boolean) {
+    var returned = false;
+    return new Promise((resolve, reject) => {
+      const dataFn = (data: Buffer) => {
+        if(returned){
           return;
         }
 
-        var done = fn(data, rinfo);
+
+        var done = fn(data);
         if(done !== false) {
           returned = true;
           resolve(done);
+          this.socket.off("message", dataFn);
+          this.socket.off("error", errorFn);
         }
-      });
-      this.socket.on("error", (err) => {
-        if(returned) {
-          return;
-        }
-
-        returned = true;
+      };
+      const errorFn = (err: Error) => {
         reject(err);
-      });
+        this.socket.off("message", dataFn);
+        this.socket.off("error", errorFn);
+      };
+      this.socket.on("message", dataFn);
+      this.socket.on("error", errorFn);
     });
   }
 };

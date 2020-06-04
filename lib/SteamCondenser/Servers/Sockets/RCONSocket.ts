@@ -30,32 +30,25 @@ export default class RCONSocket extends SteamSocket {
     else return ssend();
   }
   
-  getReply(): Promise<RCONPacket> {
-    var packetSize, remainingBytes = 4, packetData = Buffer.from("");
-        var rec = (): Promise<RCONPacket> => {
-          return new Promise((resolve, reject) => {
-            if(remainingBytes > 0) {
-              this.receivePacket(0)
-                .then((bytesRead) => {
-                  packetSize = this.buffer.getLong();
-                  remainingBytes = packetSize + 4;
-                  
-                  remainingBytes -= bytesRead;
-                  this.buffer.position(4);
-                  packetData = Buffer.concat([packetData, this.buffer.get()]);
-                  
-                  resolve(rec());
-                })
-                .catch((e) => {
-                  reject(e);
-                });
-            }
-            else {
-              var packet = RCONPacketFactory.GetPacketFromData(packetData);
-              resolve(packet);
-            }
-          });
-        }
-        return rec();
+  async getReply(): Promise<RCONPacket | void> {
+    if (await this.receivePacket(4) == 0) {
+      await this.close();
+      return;
+    }
+    let packetSize = this.buffer.getLong();
+    let remainingBytes = packetSize
+
+    let packetData = Buffer.alloc(packetSize);
+    let receivedBytes;
+    do {
+      receivedBytes = await this.receivePacket(remainingBytes);
+      const bf = this.buffer.get();
+      bf.copy(packetData, packetSize - remainingBytes, 0, receivedBytes);
+      remainingBytes -= receivedBytes;
+    } while (remainingBytes > 0);
+
+    const packet = RCONPacketFactory.GetPacketFromData(packetData);
+
+    return packet;
   }
 }
