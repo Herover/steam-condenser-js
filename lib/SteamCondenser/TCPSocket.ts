@@ -5,6 +5,8 @@ import SteamPacket from "./Servers/Packets/SteamPacket";
 
 export default class TCPSocket extends Socket {
   protected socket?: net.Socket;
+  private buffer = Buffer.alloc(4096);
+  private receivedBytes = 0;
 
   constructor(address: string, port: number) {
     super(address, port);
@@ -24,20 +26,27 @@ export default class TCPSocket extends Socket {
       this.socket.on("error", () => {
         reject();
       });
+      this.socket.on("data", (data) => {
+        this.buffer = Buffer.concat([this.buffer.slice(0, this.receivedBytes), data]);
+        this.receivedBytes += data.length;
+      })
     })
   }
   
   close() {
     return new Promise((resolve, reject) => {
       if (typeof this.socket === "undefined") {
-        throw new Error("socket is undefined")
+        throw new Error("Socket is undefined")
       }
       this.socket.on("end", () => resolve());
       this.socket.end();
     })
   }
   
-  send(data: Buffer | SteamPacket): Promise<void> { // TODO: remove or replace any type
+  send(data: Buffer | SteamPacket): Promise<void> {
+    if (!this.isOpen) {
+      throw new Error("Socket not open");
+    }
     var buffer: Buffer;
     if(data instanceof SteamPacket) buffer = data.toBuffer();
     else buffer = data;
@@ -45,7 +54,7 @@ export default class TCPSocket extends Socket {
     
     return new Promise((resolve, reject) => {
       if (typeof this.socket === "undefined") {
-        throw new Error("socket is undefined")
+        throw new Error("Socket is undefined")
       }
       this.socket.write(buffer, (err) => {
         if(err) {
@@ -57,14 +66,52 @@ export default class TCPSocket extends Socket {
       });
     });
   }
+
+  recvBytes(bytes: number = 0): Promise<Buffer> {
+    const received = Buffer.alloc(bytes);
+    let stored = 0;
+    return new Promise<Buffer>(resolve => {
+      const dataFn = () => {
+        if (this.receivedBytes > 0) {
+          if (bytes == 0) {
+            if (typeof this.socket != "undefined") {
+              this.socket.off("data", dataFn);
+            }
+
+            this.receivedBytes = 0;
+            resolve(this.buffer);
+          } else {
+            const readBytes = Math.min(this.receivedBytes, bytes-stored);
+            this.buffer.copy(received, stored, 0, readBytes);
+            this.buffer.copyWithin(0, readBytes, this.receivedBytes);
+            this.receivedBytes -= readBytes;
+            stored += readBytes;
+            if (stored >= bytes) {
+              if (typeof this.socket != "undefined") {
+                this.socket.off("data", dataFn);
+              }
+
+              resolve(received);
+            }
+          }
+        }
+      }
+
+      if (typeof this.socket == "undefined") {
+        throw new Error("Socket not ready");
+      }
+      this.socket.on("data", dataFn);
+      dataFn();
+    });
+  }
   
   recv(fn: (buffer: Buffer, rinfo?: any) => boolean) {
     var returned = false;
     return new Promise((resolve, reject) => {
       if (typeof this.socket === "undefined") {
-        throw new Error("socket is undefined")
+        throw new Error("Socket is undefined")
       }
-      this.socket.on("data", (data: Buffer) => {
+      const dataFn = (data: Buffer) => {
         if(returned){
           return;
         }
@@ -73,11 +120,23 @@ export default class TCPSocket extends Socket {
         if(done !== false) {
           returned = true;
           resolve(done);
+          
+          if (typeof this.socket != "undefined") {
+            this.socket.off("data", dataFn);
+            this.socket.off("error", errorFn);
+          }
         }
-      });
-      this.socket.on("error", (err) => {
+      };
+      const errorFn = (err: Error) => {
         reject(err);
-      });
+        
+        if (typeof this.socket != "undefined") {
+          this.socket.off("data", dataFn);
+          this.socket.off("error", errorFn);
+        }
+      };
+      this.socket.on("data", dataFn);
+      this.socket.on("error", errorFn);
     });
   }
 };

@@ -67,13 +67,17 @@ export class SourceServer extends GameServer {
     }
     let reply = await this.rconSocket.getReply();
     
-    /*if(typeof reply == "undefined") {
+    if(!reply) {
       throw new Error("RCONBanException");
-    }*/
+    }
     if (typeof this.rconSocket === "undefined") {
       throw new Error("rconSocket not set up");
     }
     reply = await this.rconSocket.getReply();
+
+    if (!reply) {
+      throw new Error("Received no 2'nd rcon response");
+    }
     
     this.rconAuthenticated = reply.ID == this.rconRequestId;
     return this.rconAuthenticated;
@@ -83,9 +87,9 @@ export class SourceServer extends GameServer {
     if(!this.rconAuthenticated) {
       throw new Error("RCONNoAuthException");
     }
-    
+
     var isMulti = false,
-        responsePacket: any,
+        responsePacket: RCONPacket | void,
         response: string[] = [];
     if (typeof this.rconSocket === "undefined") {
       throw new Error("rconSocket not ready");
@@ -100,7 +104,7 @@ export class SourceServer extends GameServer {
         throw new Error("RCONNoAuthException");
       }
       
-      if(!isMulti && responsePacket.getResponse().length > 0) {
+      if(!isMulti && responsePacket.body.length > 0) {
         isMulti = true;
         if (typeof this.rconSocket === "undefined") {
           throw new Error("rconSocket not set up");
@@ -108,14 +112,17 @@ export class SourceServer extends GameServer {
         this.rconSocket.send(new RCON_Terminator(this.rconRequestId));
       }
 
-      response.push(responsePacket.getResponse());
+      response.push(responsePacket.body);
     } while (isMulti
-      //&& typeof response[response.length - 2] != "undefined"
-      //&& typeof response[response.length - 1] != "undefined"
-      && responsePacket.body == "\u0000\u0000"
-      || !isMulti);
+      && !(
+        response.length > 2
+        // FIXME: Final 2 packets should be empty, 
+        && response[response.length - 2] == ""
+        && response[response.length - 1].endsWith("\u0000\u0000")
+      )
+    );
 
-      return response.join().trim(); 
+    return response.slice(0, response.length-2).join().trim(); 
   }
 
   static GetMaster = function() {

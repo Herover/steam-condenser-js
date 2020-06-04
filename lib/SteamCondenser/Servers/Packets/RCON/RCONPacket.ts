@@ -24,12 +24,7 @@ export default class RCONPacket extends Packet{
   }
   
   get body() {
-    var txt = "", i = 0;
-    /*while(this.buffer.readInt8(12 + i) != 0x00) {
-      txt += String.fromCharCode(this.buffer.readUInt8(12 + i));
-      i++;
-    }*/
-    txt = this.buffer.slice(12).toString()
-    return txt;
+    // Remove string terminator
+    return this.buffer.slice(12, this.buffer.length - 2).toString();
   }
 }

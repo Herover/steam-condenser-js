@@ -171,7 +171,7 @@ export default class GameServer extends Server{
         }
         return this.socket.getReply();
       })
-      .then((responsePacket: SteamPacket | RCONPacket) => {
+      .then((responsePacket: SteamPacket | RCONPacket | void) => {
         if (!(responsePacket instanceof SteamPacket)) {
           throw new Error("Invalid response packet " + responsePacket);
         }
