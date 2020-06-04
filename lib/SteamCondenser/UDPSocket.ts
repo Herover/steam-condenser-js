@@ -21,32 +21,35 @@ export default class UDPSocket extends Socket {
       this.socket.on("message", (data) => {
         this.buffer = Buffer.concat([this.buffer.slice(0, this.receivedBytes), data]);
         this.receivedBytes += data.length;
-      })
-      resolve();
+      });
+      this.socket.connect(this.port, this.ipAddress, () => resolve());
     });
   }
   
-  close() {
-    return new Promise((resolve, reject) => {
-      this.socket.close();
-      this.socket.on("close", () => {
-        this.open = false;
-        resolve();
-      });
+  async close() {
+    return new Promise(resolve => {
+      try {
+        this.socket.disconnect();
+        this.socket.close();
+        this.socket.on("close", () => {
+          this.open = false;
+          resolve();
+        });
+      } catch(e) {
+        // FIXME: Ignore?
+      }
     })
   }
   
   send(buffer: Buffer | any): Promise<void> { // TODO: remove or replace any type
     if(typeof buffer.toBuffer == "function") buffer = buffer.toBuffer();
-    
-    // console.log("udpsocket.js send", buffer);
-    
+        
     return new Promise((resolve, reject) => {
       if (typeof this.socket === "undefined") {
         throw new Error("socket is undefined")
       }
 
-      this.socket.send(buffer, 0, buffer.length, this.port, this.ipAddress, function(err) {
+      this.socket.send(buffer, (err) => {
         if(err) {
           reject(err);
         }

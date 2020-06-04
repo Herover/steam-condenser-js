@@ -4,7 +4,7 @@ export default class Server {
   protected ipAddress: string;
   protected port: number;
 
-  constructor(address: string, port: number) {
+  constructor(address: string, port: number = 27015) {
     if(address.indexOf(":") != -1) {
       var parts = address.split(":");
       address = parts[0];
@@ -12,8 +12,6 @@ export default class Server {
     }
     this.ipAddress = address;
     this.port = port;
-    
-    //this.initSocket();
   }
   
   

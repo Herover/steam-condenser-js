@@ -20,7 +20,6 @@ export default class TCPSocket extends Socket {
       });
       this.socket.on("connect", () => {
         this.open = true;
-        //console.log("connected");
         resolve();
       });
       this.socket.on("error", () => {
@@ -50,7 +49,6 @@ export default class TCPSocket extends Socket {
     var buffer: Buffer;
     if(data instanceof SteamPacket) buffer = data.toBuffer();
     else buffer = data;
-     //console.log("tcpsocket.js send", buffer);
     
     return new Promise((resolve, reject) => {
       if (typeof this.socket === "undefined") {

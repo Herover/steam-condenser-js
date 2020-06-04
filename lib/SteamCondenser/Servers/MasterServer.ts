@@ -2,18 +2,20 @@
 
 import M2A_SERVER_BATCH_Packet from "./Packets/M2A_SERVER_BATCH_Packet";
 
-var Server = require("./Server"),
-    A2M_GET_SERVERS_BATCH2_Packet = require("./Packets/A2M_GET_SERVERS_BATCH2_Packet"),
-    MasterSErverSocket = require("./Sockets/MasterServerSocket");
+import Server from "./Server";
+import A2M_GET_SERVERS_BATCH2_Packet from "./Packets/A2M_GET_SERVERS_BATCH2_Packet";
+import MasterSErverSocket from "./Sockets/MasterServerSocket";
 
 export default class MasterServer extends Server {
+  private retries = 0;
+  private socket?: MasterSErverSocket;
+
   constructor(address: string, port?: number) {
     super(address, port);
     this.retries = 3;
-    this.initSocket();
   }
 
-  getServers(regionCode: number, filter?: string, force?: boolean) {
+  async getServers(regionCode: number, filter?: string, force?: boolean) {
     if(typeof regionCode == "undefined") {
       regionCode = MasterServer.REGION_ALL;
     }
@@ -23,69 +25,59 @@ export default class MasterServer extends Server {
     if(typeof force == "undefined") {
       force = false;
     }
+    if (typeof this.socket == "undefined") {
+      await this.initSocket();
+    }
 
-    var failCount = 0,
+    let failCount = 0,
         finished = false,
-        portNumber = 0,
-        hostName = "0.0.0.0",
+        lastResult = "0.0.0.0:0",
         serverArray: (string|number)[][] = [];
 
-    return new Promise((resolve, reject) => {
-      var _getServers = () => {
-        return this.socket.send(new A2M_GET_SERVERS_BATCH2_Packet(regionCode, hostName + ":" + portNumber, filter))
-          .then(() => {
-            return this.socket.getReply();
-          })
-          .then((reply: M2A_SERVER_BATCH_Packet) => {
-            failCount = 0;
-            var serverStringArray = reply.getServers();
+    while (true) {
+      failCount = 0;
+      do {
+        await this.socket?.send(new A2M_GET_SERVERS_BATCH2_Packet(regionCode, lastResult, filter));
+        
+        try {
+          if (typeof this.socket == "undefined") {
+            throw new Error("Socket not ready");
+          }
+          const serverStrArray = (await this.socket.getReply() as M2A_SERVER_BATCH_Packet).getServers();
+          for (const serverStr of serverStrArray) {
+            lastResult = serverStr;
 
-            for(var server in serverStringArray) {
-              var serverString = serverStringArray[server].split(":");
-              hostName = serverString[0];
-              portNumber = Number.parseInt(serverString[1]);
+            if (lastResult !== "0.0.0.0:0") {
+              const parts = serverStr.split(":");
+              serverArray.push([parts[0], Number.parseInt(parts[1])])
+            } else {
+              finished = true;
+            }
+          }
+        } catch(e) {
+          // TODO: Timeouts only
+          failCount ++;
+          if(failCount == this.retries) {
+            throw e;
+          }
+        }
+        await new Promise(resolve => setTimeout(resolve, 500))
+      } while (!finished);
+      break;
+    }
 
-              if(hostName != "0.0.0.0" && portNumber != 0) {
-                serverArray.push([hostName, portNumber]);
-              } else {
-                finished = true;
-              }
-            }
-            if(!finished) {
-              return _getServers();
-            }
-            else {
-              resolve(serverArray);
-            }
-          })
-          .catch((e: any) => { // TODO: Fix type
-            if(e.message == "TimeoutException") {
-              failCount ++;
-              if(!force && failCount == this.retries) {
-                e.servers = serverArray;
-                reject(e);
-              }
-              else {
-                if(!finished) {
-                  return _getServers();
-                }
-              }
-            }
-            else {
-              reject(e);
-            }
-          })
-      }
-      return _getServers();
-    })
+    return serverArray;
   }
 
-  initSocket() {
+  async initSocket(): Promise<void> {
     this.socket = new MasterSErverSocket(this.ipAddress, this.port);
+    await this.socket.connect();
   }
 
-  disconnect() {
-    this.socket.close();
+  async disconnect() {
+    if (typeof this.socket != "undefined") {
+      await this.socket.close();
+    }
   }
 
   static GOLDSRC_MASTER_SERVER = "hl1master.steampowered.com:27011";
@@ -100,5 +92,3 @@ export default class MasterServer extends Server {
   static REGION_AFRICA = 0x07;
   static REGION_ALL = 0xFF;
 }
-
-module.exports = MasterServer;

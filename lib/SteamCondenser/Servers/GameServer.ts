@@ -126,14 +126,11 @@ export default class GameServer extends Server{
     });
   }
   
-  initialize() {
-    return this.initSocket()
-      .then(() => {return this.updatePing();})
-      .then(() => {return this.updateServerInfo();})
-      .then(() => {return this.updateChallengeNumber();})
-      .catch((err) => {
-        throw err;
-      });
+  async initialize() {
+    await this.initSocket();
+    await this.updatePing();
+    await this.updateServerInfo();
+    await this.updateChallengeNumber();
   }
   
   handleResponseForRequest(requestType: number, repeatOnFailure?: boolean): Promise<void> {
@@ -163,7 +160,7 @@ export default class GameServer extends Server{
     if (typeof this.socket === "undefined") {
       throw new Error("socket not set up");
     }
-    
+
     return this.socket.send(requestPacket)
       .then(() => {
         if (typeof this.socket === "undefined") {
@@ -217,29 +214,23 @@ export default class GameServer extends Server{
     return this.handleResponseForRequest(GameServer.REQUEST_CHALLENGE);
   }
   
-  updatePing() {
+  async updatePing() {
     var startTime: number, endTime: number;
     if (typeof this.socket === "undefined") {
       throw new Error("socket not set up");
     }
-    return this.socket.send(new A2S_INFO_Packet())
-      .then(() => {
-        startTime = new Date().getTime();
-        
-        if (typeof this.socket === "undefined") {
-          throw new Error("socket not set up");
-        }
-        return  this.socket.getReply();
-      })
-      .then(() => {
-        endTime = new Date().getTime();
-        this.ping = endTime - startTime;
-        
-        return this.ping;
-      })
-      .catch((err) => {
-        throw err;
-      });
+    await this.socket.send(new A2S_INFO_Packet())
+    startTime = new Date().getTime();
+
+    if (typeof this.socket === "undefined") {
+      throw new Error("socket not set up");
+    }
+
+    await this.socket.getReply();
+    endTime = new Date().getTime();
+    this.ping = endTime - startTime;
+    
+    return this.ping;
   }
   
   updatePlayers(rconPassword?: string) {
@@ -338,4 +329,3 @@ export default class GameServer extends Server{
   static REQUEST_PLAYER    = 2;
   static REQUEST_RULES     = 3;
 }
-module.exports = GameServer;

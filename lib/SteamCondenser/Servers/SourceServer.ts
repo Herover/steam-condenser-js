@@ -17,8 +17,8 @@ export class SourceServer extends GameServer {
   
   constructor(ipAddress: string, portNumber: number) {super(ipAddress, portNumber);}
 
-  disconnect() {
-    return Promise.all([
+  async disconnect() {
+    await Promise.all([
       new Promise((resolve) => {
         if (typeof this.rconSocket === "undefined") {
           throw new Error("rconSocket not ready");
@@ -38,19 +38,13 @@ export class SourceServer extends GameServer {
     return Math.floor(Math.random() * Math.pow(2, 16));
   }
   
-  initSocket(): Promise<void> {
+  async initSocket(): Promise<void> {
     this.rconSocket = new RCONSocket(this.ipAddress, this.port);
     this.socket = new SourceSocket(this.ipAddress, this.port);
-    return Promise.all([
-      new Promise(resolve => {
-        if (typeof this.socket === "undefined") {
-          throw new Error("socket not ready");
-        }
-        this.socket.connect();
-        resolve();
-      }),
-    ])
-      .then(() => { return; });
+    if (typeof this.socket === "undefined") {
+      throw new Error("socket not ready");
+    }
+    await this.socket.connect();
   }
   
   async rconAuth(password: string) {

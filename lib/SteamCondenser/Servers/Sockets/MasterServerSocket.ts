@@ -10,25 +10,20 @@ export default class MasterServerSocket extends SteamSocket {
     super(ipAddress, portNumber);
 
     this.socket = new UDPSocket(ipAddress, portNumber);
-    this.socket.connect();
   }
 
-  getReply(): Promise<SteamPacket> {
-    var packetSize, remainingBytes = 4, packetData = Buffer.from("");
-    return new Promise((resolve, reject) => {
-      var timeoutTimer = setTimeout(() => {reject(new Error("TimeoutException"))}, this.timeout);
-      return this.receivePacket(1500)
-        .then((bytesRead: number) => {
-          if(this.buffer.getLong() != -1) {
-            clearTimeout(timeoutTimer);
-            reject(new Error("Master query response has wrong packet header."));
-          }
+  async connect() {
+    await this.socket.connect();
+  }
 
-          var packet = SteamPacketFactory.GetPacketFromData(this.buffer.get());
+  async getReply(): Promise<SteamPacket> {
+    await this.receivePacket();
 
-          clearTimeout(timeoutTimer);
-          resolve(packet);
-        })
-    })
+    if (this.buffer.getLong() != -1) {
+      throw new Error("Master query response has wrong packet header.")
+    }
+
+    const packet = SteamPacketFactory.GetPacketFromData(this.buffer.get());
+    return packet;
   }
 }
