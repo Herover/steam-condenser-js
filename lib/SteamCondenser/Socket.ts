@@ -11,7 +11,7 @@ export default class Socket {
 
   constructor(address: string, port: number) {
     if(address.indexOf(":") != -1) {
-      var parts = address.split(":");
+      const parts = address.split(":");
       address = parts[0];
       port = Number.parseInt(parts[1]);
     }

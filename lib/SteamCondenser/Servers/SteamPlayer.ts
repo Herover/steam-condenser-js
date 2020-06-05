@@ -52,7 +52,7 @@ export default class SteamPlayer {
       this.ping = Number.parseInt(playerData['ping']);
 
       if(typeof playerData['state'] != "undefined") {
-        var address = playerData['adr'].split(':');
+        const address = playerData['adr'].split(':');
         this.ipAddress  = address[0];
         this.clientPort = Number.parseInt(address[1]);
       }

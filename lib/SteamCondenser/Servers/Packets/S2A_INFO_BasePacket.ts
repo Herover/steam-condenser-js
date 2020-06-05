@@ -12,4 +12,4 @@ export default class S2A_INFO_BasePacket extends SteamPacket {
   getInfo() {
     return this.info;
   }
-};
+}

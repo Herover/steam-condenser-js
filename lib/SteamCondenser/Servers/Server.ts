@@ -4,9 +4,9 @@ export default class Server {
   protected ipAddress: string;
   protected port: number;
 
-  constructor(address: string, port: number = 27015) {
+  constructor(address: string, port = 27015) {
     if(address.indexOf(":") != -1) {
-      var parts = address.split(":");
+      const parts = address.split(":");
       address = parts[0];
       port = Number.parseInt(parts[1]);
     }

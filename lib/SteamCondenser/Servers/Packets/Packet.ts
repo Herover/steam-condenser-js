@@ -14,39 +14,39 @@ export default class Packet {
   }
   
   _readByte() {
-    var res = this.buffer.readInt8(this.bufferPointer);
+    const res = this.buffer.readInt8(this.bufferPointer);
     this.bufferPointer += 1;
     return res;
   }
   
   _readShort() {
-    var res = this.buffer.readInt16LE(this.bufferPointer);
+    const res = this.buffer.readInt16LE(this.bufferPointer);
     this.bufferPointer += 2;
     return res;
   }
   
   _readLong() {
-    var res = this.buffer.readInt32LE(this.bufferPointer);
+    const res = this.buffer.readInt32LE(this.bufferPointer);
     this.bufferPointer += 4;
     return res;
   }
   
   _readFloat() {
-    var res = this.buffer.readFloatLE(this.bufferPointer);
+    const res = this.buffer.readFloatLE(this.bufferPointer);
     this.bufferPointer += 4;
     return res;
   }
   
   _readLongLong() {
-    var a = this.buffer.readInt32LE(this.bufferPointer);
+    const a = this.buffer.readInt32LE(this.bufferPointer);
     this.bufferPointer += 4;
-    var b = this.buffer.readInt32LE(this.bufferPointer);
+    const b = this.buffer.readInt32LE(this.bufferPointer);
     this.bufferPointer += 4;
     return bignum.add(a, bignum.mul(bignum.pow(2, 16), b)).toString();
   }
   
   _readString() {
-    var txt = "";
+    let txt = "";
     while(this.buffer.readInt8(this.bufferPointer) != 0x00) {
       txt += String.fromCharCode(this.buffer.readInt8(this.bufferPointer));
       this.bufferPointer++;
@@ -114,4 +114,4 @@ export default class Packet {
   toBuffer() {
     return this.buffer;
   }
-};
+}

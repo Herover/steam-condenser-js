@@ -13,7 +13,7 @@ import SteamPacket from "./Packets/SteamPacket";
 export class SourceServer extends GameServer {
   private rconSocket?: RCONSocket;
   protected socket?: SourceSocket;
-  private rconRequestId: number = -1;
+  private rconRequestId = -1;
   
   constructor(ipAddress: string, portNumber: number) {super(ipAddress, portNumber);}
 
@@ -82,7 +82,7 @@ export class SourceServer extends GameServer {
       throw new Error("RCONNoAuthException");
     }
 
-    var isMulti = false,
+    let isMulti = false,
         responsePacket: RCONPacket | void,
         response: string[] = [];
     if (typeof this.rconSocket === "undefined") {

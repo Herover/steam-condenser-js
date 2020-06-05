@@ -43,57 +43,57 @@ export default class ByteBuffer {
       throw new Error("BufferUnderFlorException");
     }
     
-    var data = this.buffer.slice(this.myposition, this.myposition + length);
+    const data = this.buffer.slice(this.myposition, this.myposition + length);
     this.myposition += length;
     return data;
   }
   
   getByte() {
-    var res = this.buffer.readInt8(this.myposition);
+    const res = this.buffer.readInt8(this.myposition);
     this.myposition += 1;
     return res;
   }
   
   getShort() {
-    var res = this.buffer.readInt16LE(this.myposition);
+    const res = this.buffer.readInt16LE(this.myposition);
     this.myposition += 2;
     return res;
   }
   
   getUShort() {
-    var res = this.buffer.readUInt16LE(this.myposition);
+    const res = this.buffer.readUInt16LE(this.myposition);
     this.myposition += 2;
     return res;
   }
 
   getLong() {
-    var res = this.buffer.readInt32LE(this.myposition);
+    const res = this.buffer.readInt32LE(this.myposition);
     this.myposition += 4;
     return res;
   }
   
   getUnsignedLong() {
-    var res = this.buffer.readUInt32LE(this.myposition);
+    const res = this.buffer.readUInt32LE(this.myposition);
     this.myposition += 4;
     return res;
   }
   
   getFloat() {
-    var res = this.buffer.readFloatLE(this.myposition);
+    const res = this.buffer.readFloatLE(this.myposition);
     this.myposition += 4;
     return res;
   }
   
   getLongLong() {
-    var a = this.buffer.readInt32LE(this.myposition);
+    const a = this.buffer.readInt32LE(this.myposition);
     this.myposition += 4;
-    var b = this.buffer.readInt32LE(this.myposition);
+    const b = this.buffer.readInt32LE(this.myposition);
     this.myposition += 4;
     return bignum.add(a, bignum.mul(bignum.pow(2, 16), b)).toString();
   }
   
   getString() {
-    var txt = "";
+    let txt = "";
     while(this.buffer.readInt8(this.myposition) != 0x00) {
       txt += String.fromCharCode(this.buffer.readInt8(this.myposition));
       this.myposition++;

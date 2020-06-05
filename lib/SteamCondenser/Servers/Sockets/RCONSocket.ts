@@ -20,8 +20,8 @@ export default class RCONSocket extends SteamSocket {
   }
   
   send(dataPacket: RCONPacket) {
-    var supersend = super.send;
-    var ssend = () => {return supersend.call(this, dataPacket)};
+    const supersend = super.send;
+    const ssend = () => {return supersend.call(this, dataPacket)};
     if(typeof this.socket == "undefined" || !this.socket.isOpen()) {
       this.socket = new TCPSocket(this.ipAddress, this.portNumber);
       return this.socket.connect()
@@ -35,10 +35,10 @@ export default class RCONSocket extends SteamSocket {
       await this.close();
       return;
     }
-    let packetSize = this.buffer.getLong();
+    const packetSize = this.buffer.getLong();
     let remainingBytes = packetSize
 
-    let packetData = Buffer.alloc(packetSize);
+    const packetData = Buffer.alloc(packetSize);
     let receivedBytes;
     do {
       receivedBytes = await this.receivePacket(remainingBytes);

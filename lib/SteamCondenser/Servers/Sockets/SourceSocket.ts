@@ -16,7 +16,7 @@ export default class SourceSocket extends SteamSocket {
   }
   
   async getReply(): Promise<SteamPacket> {
-    var isCompressed = false,
+    let isCompressed = false,
         receivedPackets = 0,
         packet,
         requestId,

@@ -60,7 +60,7 @@ export default class UDPSocket extends Socket {
     });
   }
 
-  recvBytes(bytes: number = 0): Promise<Buffer> {
+  recvBytes(bytes = 0): Promise<Buffer> {
     const id = Math.floor(Math.random()*10000);
     const received = Buffer.alloc(bytes);
     let stored = 0;
@@ -92,7 +92,7 @@ export default class UDPSocket extends Socket {
   }
 
   recv(fn: (buffer: Buffer, rinfo?: any) => boolean) {
-    var returned = false;
+    let returned = false;
     return new Promise((resolve, reject) => {
       const dataFn = (data: Buffer) => {
         if(returned){
@@ -100,7 +100,7 @@ export default class UDPSocket extends Socket {
         }
 
 
-        var done = fn(data);
+        const done = fn(data);
         if(done !== false) {
           returned = true;
           resolve(done);
@@ -117,4 +117,4 @@ export default class UDPSocket extends Socket {
       this.socket.on("error", errorFn);
     });
   }
-};
+}

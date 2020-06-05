@@ -11,7 +11,7 @@ import M2A_SERVER_BATCH_Packet from "./M2A_SERVER_BATCH_Packet";
 
 export default class SteamPacketFactory {
   static GetPacketFromData(rawData: any) { // TODO
-    var header = rawData[0],
+    const header = rawData[0],
         data = rawData.slice(1);
     switch(header) {
       case SteamPacket.A2S_INFO_HEADER:
@@ -62,7 +62,7 @@ export default class SteamPacketFactory {
       packetChecksum = 0;
     }
     
-    var packetData = Buffer.concat(splitPackets);
+    let packetData = Buffer.concat(splitPackets);
     
     if(isCompressed) {
       throw new Error("Uncompressing is unimplemented,");

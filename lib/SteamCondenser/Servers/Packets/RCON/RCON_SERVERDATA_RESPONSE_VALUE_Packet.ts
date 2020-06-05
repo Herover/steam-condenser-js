@@ -9,4 +9,4 @@ export default class SERVERDATA_RESPONSE_VALUE_Packet extends RCONPacket {
   getResponse() {
     return this.body;
   }
-};
+}

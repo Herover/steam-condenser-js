@@ -22,7 +22,7 @@ export default class S2A_INFO2_Packet extends S2A_INFO_BasePacket {
     this.info['gameVersion'] = this.contentData.getString();
 
     if(this.contentData.remaining() > 0) {
-      var extraDataFlag = this.contentData.getByte();
+      const extraDataFlag = this.contentData.getByte();
       if (extraDataFlag & S2A_INFO2_Packet.EDF_GAME_PORT) {
         this.info['serverPort'] = this.contentData.getShort();
       }

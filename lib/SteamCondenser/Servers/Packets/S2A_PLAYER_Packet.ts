@@ -15,7 +15,7 @@ export default class S2A_PLAYER_Packet extends SteamPacket {
     
     this.playerHash = [];
     
-    var playerData: any[];
+    let playerData: any[];
 
     while(this.contentData.remaining() > 0) {
       playerData = [this.contentData.getByte(), this.contentData.getString(), this.contentData.getLong(), this.contentData.getFloat()];
@@ -27,4 +27,4 @@ export default class S2A_PLAYER_Packet extends SteamPacket {
   getPlayerHash() {
     return this.playerHash;
   }
-};
+}

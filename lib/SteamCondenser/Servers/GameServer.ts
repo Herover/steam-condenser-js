@@ -21,14 +21,14 @@ export default class GameServer extends Server{
   protected rulesHash: any;
   protected infoHash: any;
   
-  protected challengeNumber: number = -1;
+  protected challengeNumber = -1;
   protected socket?: SteamSocket;
 
   getPlayerStatusAttributes(statusHeader: string) {
-    var statusAttributes = [];
-    var split = statusHeader.split(/\s+/);
-    for(var i = 0; i < split.length; i ++) {
-      var attr = split[i];
+    const statusAttributes = [];
+    const split = statusHeader.split(/\s+/);
+    for(let i = 0; i < split.length; i ++) {
+      const attr = split[i];
       if(attr == "connected") {
         statusAttributes.push("time");
       }
@@ -48,9 +48,9 @@ export default class GameServer extends Server{
       playerStatus = playerStatus.replace(/^\d+ +/, "");
     }
     
-    var firstquote = playerStatus.indexOf('"'),
+    const firstquote = playerStatus.indexOf('"'),
         lastquote = playerStatus.lastIndexOf('"');
-    var data = playerStatus.substr(0, firstquote).split(/\s+/)
+    const data = playerStatus.substr(0, firstquote).split(/\s+/)
                .concat([playerStatus.substr(firstquote+1, lastquote-1-firstquote)])
                .concat(playerStatus.substr(lastquote+1).split(/\s+/))
                .filter((l) => {return l != "";});
@@ -62,8 +62,8 @@ export default class GameServer extends Server{
       data.splice(1, 1);
     }
     
-    var playerData: any = {};
-    for(var part = 0; part < data.length; part ++) {
+    const playerData: any = {};
+    for(let part = 0; part < data.length; part ++) {
       playerData[attributes[part]] = data[part];
     }
     
@@ -135,7 +135,7 @@ export default class GameServer extends Server{
   
   handleResponseForRequest(requestType: number, repeatOnFailure?: boolean): Promise<void> {
     if(typeof repeatOnFailure == "undefined") {repeatOnFailure = true;}
-    var expectedResponse: Function, requestPacket: SteamPacket;
+    let expectedResponse: Function, requestPacket: SteamPacket;
     switch(requestType) {
       case GameServer.REQUEST_CHALLENGE:
         expectedResponse = S2C_CHALLENGE_Packet;
@@ -215,7 +215,7 @@ export default class GameServer extends Server{
   }
   
   async updatePing() {
-    var startTime: number, endTime: number;
+    let startTime: number, endTime: number;
     if (typeof this.socket === "undefined") {
       throw new Error("socket not set up");
     }
@@ -255,20 +255,20 @@ export default class GameServer extends Server{
           return false;
         }
         
-        var players = [],
+        let players = [],
             lines = res.split("\n");
         for(var i = 0; i < lines.length; i++) {
-          var line = lines[i];
+          const line = lines[i];
           if(line.startsWith("#") && line != "#end") {
             players.push(line.substr(1).trim());
           }
         }
         
-        var attributes = this.getPlayerStatusAttributes(players[0]);
+        const attributes = this.getPlayerStatusAttributes(players[0]);
         players = players.slice(1);
         
         for(var i = 0; i < players.length; i++) {
-          var player = players[i],
+          const player = players[i],
               playerData = this.splitPlayerStatus(attributes, player);
           if(typeof this.playerHash[playerData.name] != "undefined") {
             this.playerHash[playerData.name].addInformation(playerData);
@@ -289,7 +289,7 @@ export default class GameServer extends Server{
   }
   
   toString() {
-    var returnString = "";
+    let returnString = "";
     returnString += "Ping: " + this.ping + "\n";
     returnString += "Challenge number: " + this.challengeNumber + "\n";
     
@@ -298,7 +298,7 @@ export default class GameServer extends Server{
       for(var key in this.infoHash) {
         if(this.infoHash[key] instanceof Array) {
           returnString += "  " + key + ":\n";
-          for(var subkey in this.infoHash[key]) {
+          for(const subkey in this.infoHash[key]) {
             returnString += "  " + subkey + " = " + this.infoHash[key][subkey] + "\n";
           }
         } else {

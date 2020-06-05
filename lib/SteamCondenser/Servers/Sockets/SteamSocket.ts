@@ -10,7 +10,7 @@ export default class SteamSocket {
   protected portNumber: number;
 
   protected socket: UDPSocket | TCPSocket;
-  protected buffer: ByteBuffer = new ByteBuffer();;
+  protected buffer: ByteBuffer = new ByteBuffer();
 
   protected timeout: number;
 
@@ -61,7 +61,7 @@ export default class SteamSocket {
         this.buffer.clear();
         this.buffer.put(data);
         this.buffer = ByteBuffer.Wrap(data);
-        var bytesRead = data.length;
+        const bytesRead = data.length;
         this.buffer.rewind();
         return bytesRead;
       });

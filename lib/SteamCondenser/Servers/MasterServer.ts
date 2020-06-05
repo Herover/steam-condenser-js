@@ -15,8 +15,8 @@ export default class MasterServer extends Server {
     this.retries = 3;
   }
 
-  async getServers(regionCode: number = MasterServer.REGION_ALL, filter: string = "", force: boolean = false,
-    maxPages: number = 1, after: string = "0.0.0.0:0"
+  async getServers(regionCode: number = MasterServer.REGION_ALL, filter = "", force = false,
+    maxPages = 1, after = "0.0.0.0:0"
   ) {
     if (typeof this.socket == "undefined") {
       await this.initSocket();
