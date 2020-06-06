@@ -34,6 +34,9 @@ export async function doWithin<T>(prom: Promise<T>, time: number): Promise<T> {
           resolve(val);
         }
       })
-      .catch((error) => reject(error));
+      .catch((error) => {
+        clearTimeout(timeout); 
+        reject(error);
+      });
   });
 }
