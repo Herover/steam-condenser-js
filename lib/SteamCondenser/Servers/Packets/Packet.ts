@@ -13,40 +13,40 @@ export default class Packet {
     this.buffer = data;
   }
   
-  _readByte() {
-    var res = this.buffer.readInt8(this.bufferPointer);
+  _readByte(): number {
+    const res = this.buffer.readInt8(this.bufferPointer);
     this.bufferPointer += 1;
     return res;
   }
   
-  _readShort() {
-    var res = this.buffer.readInt16LE(this.bufferPointer);
+  _readShort(): number {
+    const res = this.buffer.readInt16LE(this.bufferPointer);
     this.bufferPointer += 2;
     return res;
   }
   
-  _readLong() {
-    var res = this.buffer.readInt32LE(this.bufferPointer);
+  _readLong(): number {
+    const res = this.buffer.readInt32LE(this.bufferPointer);
     this.bufferPointer += 4;
     return res;
   }
   
-  _readFloat() {
-    var res = this.buffer.readFloatLE(this.bufferPointer);
+  _readFloat(): number {
+    const res = this.buffer.readFloatLE(this.bufferPointer);
     this.bufferPointer += 4;
     return res;
   }
   
-  _readLongLong() {
-    var a = this.buffer.readInt32LE(this.bufferPointer);
+  _readLongLong(): string {
+    const a = this.buffer.readInt32LE(this.bufferPointer);
     this.bufferPointer += 4;
-    var b = this.buffer.readInt32LE(this.bufferPointer);
+    const b = this.buffer.readInt32LE(this.bufferPointer);
     this.bufferPointer += 4;
     return bignum.add(a, bignum.mul(bignum.pow(2, 16), b)).toString();
   }
   
-  _readString() {
-    var txt = "";
+  _readString(): string {
+    let txt = "";
     while(this.buffer.readInt8(this.bufferPointer) != 0x00) {
       txt += String.fromCharCode(this.buffer.readInt8(this.bufferPointer));
       this.bufferPointer++;
@@ -55,35 +55,35 @@ export default class Packet {
     return txt;
   }
   
-  _rest() {
+  _rest(): Buffer {
     return this.buffer.slice(this.bufferPointer);
   }
   
-  _writeByte(value: number) {
+  _writeByte(value: number): this {
     this.buffer.writeInt8(value, this.bufferPointer);
     this.bufferPointer += 1;
     return this;
   }
   
-  _writeShort(value: number) {
+  _writeShort(value: number): this {
     this.buffer.writeInt16LE(value, this.bufferPointer);
     this.bufferPointer += 2;
     return this;
   }
   
-  _writeLong(value: number) {
+  _writeLong(value: number): this {
     this.buffer.writeInt32LE(value, this.bufferPointer);
     this.bufferPointer += 4;
     return this;
   }
   
-  _writeFloat(value: number) {
+  _writeFloat(value: number): this {
     this.buffer.writeInt32LE(value, this.bufferPointer);
     this.bufferPointer += 4;
     return this;
   }
   
-  _writeLongLong(value: string) {
+  _writeLongLong(value: string): this {
     this.buffer.write(value, this.bufferPointer, 8);
     this.bufferPointer += 8;
     return this;
@@ -94,24 +94,26 @@ export default class Packet {
    * @argument value Text to write, must include null(s)
    * @return packet
    */
-  _writeString(value: string | any) {
+  _writeString(value: string | { toString: () => string }): this {
     if(typeof value != "string") {
       value = value.toString();
     }
-    this.buffer.write(value, this.bufferPointer);
-    this.bufferPointer += value.length;
+    if(typeof value == "string") {
+      this.buffer.write(value, this.bufferPointer);
+      this.bufferPointer += value.length;
+    }
     return this;
   }
   
-  _resetPointer() {
+  _resetPointer(): void {
     this.bufferPointer = 0;
   }
   
-  toString() {
+  toString(): string {
     return this.buffer.toString();
   }
   
-  toBuffer() {
-    return this.buffer;
+  toBuffer(): Buffer {
+    return Buffer.from(this.buffer);
   }
-};
+}

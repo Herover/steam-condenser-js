@@ -11,19 +11,19 @@ export default class RCONPacket extends Packet{
     this._writeShort(0x00);
   }
   
-  get size() {
+  get size(): number {
     return this.buffer.readInt32LE(0);
   }
   
-  get ID() {
+  get ID(): number {
     return this.buffer.readInt32LE(4);
   }
   
-  get type() {
+  get type(): number {
     return this.buffer.readInt32LE(8);
   }
   
-  get body() {
+  get body(): string {
     // Remove string terminator
     return this.buffer.slice(12, this.buffer.length - 2).toString();
   }

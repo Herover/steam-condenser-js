@@ -3,7 +3,7 @@ import net from 'net';
 import dgram from 'dgram';
 import SteamPacket from './Servers/Packets/SteamPacket';
 
-export default class Socket {
+export default abstract class Socket {
   protected ipAddress: string;
   protected port: number;
   protected open: boolean;
@@ -11,7 +11,7 @@ export default class Socket {
 
   constructor(address: string, port: number) {
     if(address.indexOf(":") != -1) {
-      var parts = address.split(":");
+      const parts = address.split(":");
       address = parts[0];
       port = Number.parseInt(parts[1]);
     }
@@ -21,28 +21,28 @@ export default class Socket {
   }
   
   // Open connection
-  connect() {throw new Error("Not implemented connect");}
+  connect(): Promise<void> {throw new Error("Not implemented connect");}
   
   // Close connection, remove listeners
-  close() {throw new Error("Not implemented close");}
+  close(): Promise<void> {throw new Error("Not implemented close");}
   
   // Send buffer
-  send(buffer: Buffer | SteamPacket): Promise<void> {throw new Error("Not implemented send");}
+  abstract send(buffer: Buffer | SteamPacket): Promise<void>;
+
+  abstract recvBytes(bytes: number): Promise<Buffer>;
   
   // Receive data
   // fn returns true when no more packets are expected
-  recv(fn: (buffer: Buffer, rinfo: any) => boolean) {throw new Error("Not implemented recv");}
+  abstract recv(fn: (buffer: Buffer) => boolean): Promise<boolean>;
   
-  select(timeout: number) {throw new Error("Not implemented select");}
-  
-  isOpen() {
+  isOpen(): boolean {
     if(typeof this.socket == "undefined") {
       return false;
     }
     return this.open;
   }
   
-  resource() {
+  resource(): net.Socket | dgram.Socket | void {
     return this.socket;
   }
 }

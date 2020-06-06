@@ -10,11 +10,11 @@ export default class S2A_RULES_Packet extends SteamPacket {
       throw new Error("Wrong formatted S2A_RULES packet.");
     }
     
-    var rulesCount = this.contentData.getShort();
+    const rulesCount = this.contentData.getShort();
     this.rules = {};
     
-    for(var x = 0; x < rulesCount; x++) {
-      var rule  = this.contentData.getString(),
+    for(let x = 0; x < rulesCount; x++) {
+      const rule  = this.contentData.getString(),
           value = this.contentData.getString();
           
       if(rule == "") {
@@ -24,7 +24,7 @@ export default class S2A_RULES_Packet extends SteamPacket {
     }
   }
   
-  getRulesArray() {
+  getRulesArray(): {[key: string]: string} {
     return this.rules;
   }
-};
+}

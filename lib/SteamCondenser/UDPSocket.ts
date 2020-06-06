@@ -13,8 +13,8 @@ export default class UDPSocket extends Socket {
     super(address, port);
   }
   
-  connect() {
-    return new Promise((resolve, reject) => {
+  connect(): Promise<void> {
+    return new Promise((resolve) => {
       this.socket = dgram.createSocket("udp4");
       this.open = true;
       this.buffer = Buffer.alloc(bufferSize);
@@ -26,7 +26,7 @@ export default class UDPSocket extends Socket {
     });
   }
   
-  async close() {
+  async close(): Promise<void> {
     return new Promise(resolve => {
       try {
         this.socket.disconnect();
@@ -41,9 +41,7 @@ export default class UDPSocket extends Socket {
     })
   }
   
-  send(buffer: Buffer | any): Promise<void> { // TODO: remove or replace any type
-    if(typeof buffer.toBuffer == "function") buffer = buffer.toBuffer();
-        
+  send(buffer: Buffer): Promise<void> {
     return new Promise((resolve, reject) => {
       if (typeof this.socket === "undefined") {
         throw new Error("socket is undefined")
@@ -60,8 +58,7 @@ export default class UDPSocket extends Socket {
     });
   }
 
-  recvBytes(bytes: number = 0): Promise<Buffer> {
-    const id = Math.floor(Math.random()*10000);
+  recvBytes(bytes = 0): Promise<Buffer> {
     const received = Buffer.alloc(bytes);
     let stored = 0;
     
@@ -91,8 +88,8 @@ export default class UDPSocket extends Socket {
     });
   }
 
-  recv(fn: (buffer: Buffer, rinfo?: any) => boolean) {
-    var returned = false;
+  recv(fn: (buffer: Buffer) => boolean): Promise<boolean> {
+    let returned = false;
     return new Promise((resolve, reject) => {
       const dataFn = (data: Buffer) => {
         if(returned){
@@ -100,7 +97,7 @@ export default class UDPSocket extends Socket {
         }
 
 
-        var done = fn(data);
+        const done = fn(data);
         if(done !== false) {
           returned = true;
           resolve(done);
@@ -117,4 +114,4 @@ export default class UDPSocket extends Socket {
       this.socket.on("error", errorFn);
     });
   }
-};
+}

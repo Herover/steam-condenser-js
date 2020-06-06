@@ -12,7 +12,7 @@ export default class TCPSocket extends Socket {
     super(address, port);
   }
   
-  connect() {
+  connect(): Promise<void> {
     return new Promise((resolve, reject) => {
       this.socket = net.createConnection({
         host: this.ipAddress,
@@ -32,8 +32,8 @@ export default class TCPSocket extends Socket {
     })
   }
   
-  close() {
-    return new Promise((resolve, reject) => {
+  close(): Promise<void> {
+    return new Promise((resolve) => {
       if (typeof this.socket === "undefined") {
         throw new Error("Socket is undefined")
       }
@@ -46,7 +46,7 @@ export default class TCPSocket extends Socket {
     if (!this.isOpen) {
       throw new Error("Socket not open");
     }
-    var buffer: Buffer;
+    let buffer: Buffer;
     if(data instanceof SteamPacket) buffer = data.toBuffer();
     else buffer = data;
     
@@ -65,7 +65,7 @@ export default class TCPSocket extends Socket {
     });
   }
 
-  recvBytes(bytes: number = 0): Promise<Buffer> {
+  recvBytes(bytes = 0): Promise<Buffer> {
     const received = Buffer.alloc(bytes);
     let stored = 0;
     return new Promise<Buffer>(resolve => {
@@ -103,8 +103,8 @@ export default class TCPSocket extends Socket {
     });
   }
   
-  recv(fn: (buffer: Buffer, rinfo?: any) => boolean) {
-    var returned = false;
+  recv(fn: (buffer: Buffer) => boolean): Promise<boolean> {
+    let returned = false;
     return new Promise((resolve, reject) => {
       if (typeof this.socket === "undefined") {
         throw new Error("Socket is undefined")
@@ -114,7 +114,7 @@ export default class TCPSocket extends Socket {
           return;
         }
 
-        var done = fn(data);
+        const done = fn(data);
         if(done !== false) {
           returned = true;
           resolve(done);
@@ -137,4 +137,4 @@ export default class TCPSocket extends Socket {
       this.socket.on("error", errorFn);
     });
   }
-};
+}

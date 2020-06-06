@@ -3,7 +3,6 @@ import SteamSocket from "./SteamSocket";
 import TCPSocket from "../../TCPSocket";
 import RCONPacketFactory from "../Packets/RCON/RCONPacketFactory";
 import ByteBuffer from "../../ByteBuffer";
-import SteamPacket from "../Packets/SteamPacket";
 import RCONPacket from "../Packets/RCON/RCONPacket";
 
 export default class RCONSocket extends SteamSocket {
@@ -12,16 +11,16 @@ export default class RCONSocket extends SteamSocket {
     this.buffer = ByteBuffer.Allocate(1400);
   }
   
-  close() {
+  async close(): Promise<void> {
     if(typeof this.socket != "undefined") {
       return super.close();
     }
     return new Promise((resolve) => {resolve();});
   }
   
-  send(dataPacket: RCONPacket) {
-    var supersend = super.send;
-    var ssend = () => {return supersend.call(this, dataPacket)};
+  async send(dataPacket: RCONPacket): Promise<void> {
+    const supersend = super.send;
+    const ssend = () => {return supersend.call(this, dataPacket)};
     if(typeof this.socket == "undefined" || !this.socket.isOpen()) {
       this.socket = new TCPSocket(this.ipAddress, this.portNumber);
       return this.socket.connect()
@@ -35,10 +34,10 @@ export default class RCONSocket extends SteamSocket {
       await this.close();
       return;
     }
-    let packetSize = this.buffer.getLong();
+    const packetSize = this.buffer.getLong();
     let remainingBytes = packetSize
 
-    let packetData = Buffer.alloc(packetSize);
+    const packetData = Buffer.alloc(packetSize);
     let receivedBytes;
     do {
       receivedBytes = await this.receivePacket(remainingBytes);

@@ -3,7 +3,7 @@ import SteamPacket from "./SteamPacket";
 import SteamPlayer from "../SteamPlayer";
 
 export default class S2A_PLAYER_Packet extends SteamPacket {
-  private playerHash: SteamPlayer[];
+  private playerHash: {[key: string]: SteamPlayer};
 
   constructor(contentData: Buffer) {
     if(typeof contentData == "undefined") {
@@ -13,18 +13,20 @@ export default class S2A_PLAYER_Packet extends SteamPacket {
     
     this.contentData.getByte();
     
-    this.playerHash = [];
-    
-    var playerData: any[];
+    this.playerHash = {};
 
     while(this.contentData.remaining() > 0) {
-      playerData = [this.contentData.getByte(), this.contentData.getString(), this.contentData.getLong(), this.contentData.getFloat()];
+      const id = this.contentData.getByte()
+      const name = this.contentData.getString()
+      const score = this.contentData.getLong()
+      const connectTime = this.contentData.getFloat()
+
       // id playerData[0] is always 0?
-      this.playerHash[playerData[1]] = new SteamPlayer(playerData[0], playerData[1], playerData[2], playerData[3]);
+      this.playerHash[name] = new SteamPlayer(id, name, score, connectTime);
     }
   }
   
-  getPlayerHash() {
+  getPlayerHash(): {[key: string]: SteamPlayer} {
     return this.playerHash;
   }
-};
+}

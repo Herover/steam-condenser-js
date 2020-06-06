@@ -15,9 +15,7 @@ export default class MasterServer extends Server {
     this.retries = 3;
   }
 
-  async getServers(regionCode: number = MasterServer.REGION_ALL, filter: string = "", force: boolean = false,
-    maxPages: number = 1, after: string = "0.0.0.0:0"
-  ) {
+  async getServers(regionCode: number = MasterServer.REGION_ALL, filter = "", maxPages = 1, after = "0.0.0.0:0"): Promise<(string | number)[][]> {
     if (typeof this.socket == "undefined") {
       await this.initSocket();
     }
@@ -30,10 +28,10 @@ export default class MasterServer extends Server {
     let failCount = 0,
         page = 0,
         finished = false,
-        lastResult = after,
-        serverArray: (string|number)[][] = [];
+        lastResult = after;
+    const serverArray: (string|number)[][] = [];
 
-    while (true) {
+    for (;;) {
       failCount = 0;
       do {
         await this.socket?.send(new A2M_GET_SERVERS_BATCH2_Packet(regionCode, lastResult, filter));
@@ -74,7 +72,7 @@ export default class MasterServer extends Server {
     await this.socket.connect();
   }
 
-  async disconnect() {
+  async disconnect(): Promise<void> {
     if (typeof this.socket != "undefined") {
       await this.socket.close();
     }

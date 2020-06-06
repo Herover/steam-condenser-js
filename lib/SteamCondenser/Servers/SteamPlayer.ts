@@ -2,7 +2,7 @@
 
 export default class SteamPlayer {
   private connectTime: number;
-  private id: string;
+  private id: number;
   private name: string;
   private score: number;
   private extended: boolean;
@@ -18,12 +18,12 @@ export default class SteamPlayer {
 
 
 
-  constructor(id: string, name: string, score: number, connectTime: number) {
-  this.connectTime = connectTime;
-  this.id = id;
-  this.name = name;
-  this.score = score;
-  this.extended = false;
+  constructor(id: number, name: string, score: number, connectTime: number) {
+    this.connectTime = connectTime;
+    this.id = id;
+    this.name = name;
+    this.score = score;
+    this.extended = false;
   }
 
   /**
@@ -35,7 +35,7 @@ export default class SteamPlayer {
    * @throws SteamCondenserException if the information belongs to another
    *     player
    */
-  addInformation(playerData: any) {
+  addInformation(playerData: {[key: string]: string}): void {
     if(playerData['name'] != this.name) {
       throw new Error('Information to add belongs to a different player.');
     }
@@ -52,13 +52,13 @@ export default class SteamPlayer {
       this.ping = Number.parseInt(playerData['ping']);
 
       if(typeof playerData['state'] != "undefined") {
-        var address = playerData['adr'].split(':');
+        const address = playerData['adr'].split(':');
         this.ipAddress  = address[0];
         this.clientPort = Number.parseInt(address[1]);
       }
 
       if(typeof playerData['state'] != "undefined") {
-        this.rate = playerData['rate'];
+        this.rate = Number.parseInt(playerData['rate']);
       }
     }
   }
@@ -68,7 +68,7 @@ export default class SteamPlayer {
    *
    * @return int The client port of the player
    */
-  getClientPort() {
+  getClientPort(): number | undefined {
     return this.clientPort;
   }
 
@@ -77,7 +77,7 @@ export default class SteamPlayer {
    *
    * @return int The connection ID of this player
    */
-  getConnectionId() {
+  getConnectionId(): number | undefined {
     return this.connectionId;
   }
 
@@ -86,7 +86,7 @@ export default class SteamPlayer {
    *
    * @return float The connection time of the player
    */
-  getConnectTime() {
+  getConnectTime(): number | undefined {
     return this.connectTime;
   }
 
@@ -95,7 +95,7 @@ export default class SteamPlayer {
    *
    * @return int The ID of this player
    */
-  getId() {
+  getId(): number | undefined {
     return this.id;
   }
 
@@ -104,7 +104,7 @@ export default class SteamPlayer {
    *
    * @return string The IP address of this player
    */
-  getIpAddress() {
+  getIpAddress(): string | undefined {
     return this.ipAddress;
   }
 
@@ -113,7 +113,7 @@ export default class SteamPlayer {
    *
    * @return string The packet loss of this player's connection
    */
-  getLoss() {
+  getLoss(): number | undefined {
     return this.loss;
   }
 
@@ -122,7 +122,7 @@ export default class SteamPlayer {
    *
    * @return string The name of this player
    */
-  getName() {
+  getName(): string | undefined {
     return this.name;
   }
 
@@ -131,7 +131,7 @@ export default class SteamPlayer {
    *
    * @return int The ping of this player
    */
-  getPing() {
+  getPing(): number | undefined {
     return this.ping;
   }
 
@@ -140,7 +140,7 @@ export default class SteamPlayer {
    *
    * @return int The rate of this player
    */
-  getRate() {
+  getRate(): number | undefined {
     return this.rate;
   }
 
@@ -149,7 +149,7 @@ export default class SteamPlayer {
    *
    * @return int The score of this player
    */
-  getScore() {
+  getScore(): number | undefined {
     return this.score;
   }
 
@@ -158,7 +158,7 @@ export default class SteamPlayer {
    *
    * @return string The connection state of this player
    */
-  getState() {
+  getState(): string | undefined {
     return this.state;
   }
 
@@ -167,7 +167,7 @@ export default class SteamPlayer {
    *
    * @return string The SteamID of this player
    */
-  getSteamId() {
+  getSteamId(): string | undefined {
     return this.steamId;
   }
 
@@ -176,7 +176,7 @@ export default class SteamPlayer {
    *
    * @return bool <var>true</var> if this player is a bot
    */
-  isBot() {
+  isBot(): boolean | undefined {
     return this.steamId == 'BOT';
   }
 
@@ -187,7 +187,7 @@ export default class SteamPlayer {
    * @return bool <var>true</var> if extended information for this player
    *     is available
    */
-  isExtended() {
+  isExtended(): boolean {
     return this.extended;
   }
 
@@ -196,7 +196,7 @@ export default class SteamPlayer {
    *
    * @return string A string representing this player
    */
-  toString() {
+  toString(): string {
     if(this.extended) {
       return "#" + this.connectionId + " \"" + this.name + "\", SteamID: " + this.steamId + " Score: " + this.score + ", Time: " + this.connectTime;
     } else {

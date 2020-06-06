@@ -4,14 +4,12 @@ import S2C_CHALLENGE_Packet from "./S2C_CHALLENGE_Packet";
 import S2A_INFO2_Packet from "./S2A_INFO2_Packet";
 import S2A_PLAYER_Packet from "./S2A_PLAYER_Packet";
 import S2A_RULES_Packet from "./S2A_RULES_Packet";
-import A2S_PLAYER_Packet from "./A2S_PLAYER_Packet";
 import A2S_INFO_Packet from "./A2S_INFO_Packet";
-import A2S_RULES_Packet from "./A2S_RULES_Packet";
 import M2A_SERVER_BATCH_Packet from "./M2A_SERVER_BATCH_Packet";
 
 export default class SteamPacketFactory {
-  static GetPacketFromData(rawData: any) { // TODO
-    var header = rawData[0],
+  static GetPacketFromData(rawData: Buffer): SteamPacket { // TODO
+    const header = rawData[0],
         data = rawData.slice(1);
     switch(header) {
       case SteamPacket.A2S_INFO_HEADER:
@@ -54,21 +52,15 @@ export default class SteamPacketFactory {
                 + header.toString(16) + " received.");
     }
   }
-  static ReassemblePacket(splitPackets: Buffer[], isCompressed?: boolean, packetChecksum?: number) {
-    if(typeof isCompressed == "undefined") {
-      isCompressed = false;
-    }
-    if(typeof packetChecksum == "undefined") {
-      packetChecksum = 0;
-    }
-    
-    var packetData = Buffer.concat(splitPackets);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  static ReassemblePacket(splitPackets: Buffer[], isCompressed = false, packetChecksum = 0): SteamPacket {
+    let packetData = Buffer.concat(splitPackets);
     
     if(isCompressed) {
-      throw new Error("Uncompressing is unimplemented,");
-      
-      
+      throw new Error("Uncompressing is unimplemented."); // TODO
     }
+    // TODO: verify checksum
+
     packetData = packetData.slice(4);
     
     return SteamPacketFactory.GetPacketFromData(packetData);

@@ -6,7 +6,7 @@ export default class SERVERDATA_RESPONSE_VALUE_Packet extends RCONPacket {
     super(id, body, 0x00);
   }
   
-  getResponse() {
+  getResponse(): string {
     return this.body;
   }
-};
+}

@@ -17,25 +17,22 @@ export default class ByteBuffer {
     this.myposition = 0;
   }
   
-  // Unused/unneeded in implementation?
-  _array() {
-    return this.buffer;
-  }
-  
-  clear() {
+  clear(): this {
     this.mylimit = this.capacity;
     this.myposition = 0;
     this.buffer.fill(0x00);
+    
+    return this;
   }
   
-  flip() {
+  flip(): this {
     this.mylimit = this.myposition;
     this.myposition = 0;
     
     return this;
   }
   
-  get(length?: number) {
+  get(length?: number): Buffer {
     if(typeof length == "undefined") {
       length = this.mylimit - this.myposition;
     }
@@ -43,57 +40,57 @@ export default class ByteBuffer {
       throw new Error("BufferUnderFlorException");
     }
     
-    var data = this.buffer.slice(this.myposition, this.myposition + length);
+    const data = this.buffer.slice(this.myposition, this.myposition + length);
     this.myposition += length;
     return data;
   }
   
-  getByte() {
-    var res = this.buffer.readInt8(this.myposition);
+  getByte(): number {
+    const res = this.buffer.readInt8(this.myposition);
     this.myposition += 1;
     return res;
   }
   
-  getShort() {
-    var res = this.buffer.readInt16LE(this.myposition);
+  getShort(): number {
+    const res = this.buffer.readInt16LE(this.myposition);
     this.myposition += 2;
     return res;
   }
   
-  getUShort() {
-    var res = this.buffer.readUInt16LE(this.myposition);
+  getUShort(): number {
+    const res = this.buffer.readUInt16LE(this.myposition);
     this.myposition += 2;
     return res;
   }
 
-  getLong() {
-    var res = this.buffer.readInt32LE(this.myposition);
+  getLong(): number {
+    const res = this.buffer.readInt32LE(this.myposition);
     this.myposition += 4;
     return res;
   }
   
-  getUnsignedLong() {
-    var res = this.buffer.readUInt32LE(this.myposition);
+  getUnsignedLong(): number {
+    const res = this.buffer.readUInt32LE(this.myposition);
     this.myposition += 4;
     return res;
   }
   
-  getFloat() {
-    var res = this.buffer.readFloatLE(this.myposition);
+  getFloat(): number {
+    const res = this.buffer.readFloatLE(this.myposition);
     this.myposition += 4;
     return res;
   }
   
-  getLongLong() {
-    var a = this.buffer.readInt32LE(this.myposition);
+  getLongLong(): string {
+    const a = this.buffer.readInt32LE(this.myposition);
     this.myposition += 4;
-    var b = this.buffer.readInt32LE(this.myposition);
+    const b = this.buffer.readInt32LE(this.myposition);
     this.myposition += 4;
     return bignum.add(a, bignum.mul(bignum.pow(2, 16), b)).toString();
   }
   
-  getString() {
-    var txt = "";
+  getString(): string {
+    let txt = "";
     while(this.buffer.readInt8(this.myposition) != 0x00) {
       txt += String.fromCharCode(this.buffer.readInt8(this.myposition));
       this.myposition++;
@@ -102,7 +99,7 @@ export default class ByteBuffer {
     return txt;
   }
   
-  limit(newmylimit: number) {
+  limit(newmylimit: number): number | void {
     if(typeof newmylimit == "undefined") {
       return this.mylimit;
     } else {
@@ -110,18 +107,18 @@ export default class ByteBuffer {
     }
   }
   
-  position(position?: number) {
+  position(position?: number): number {
     if(typeof position == "number") {
       this.myposition = position;
     }
     return this.myposition;
   }
 
-  getBuffer() {
+  getBuffer(): Buffer {
     return this.buffer;
   }
   
-  put(source: Buffer) {
+  put(source: Buffer): this {
     source.copy(this.buffer, this.myposition);
     //this.buffer.write(source, this.myposition);
     this.myposition += source.length;
@@ -129,21 +126,21 @@ export default class ByteBuffer {
     return this;
   }
   
-  remaining() {
+  remaining(): number {
     return this.mylimit - this.myposition;
   }
   
-  rewind() {
+  rewind(): this {
     this.myposition = 0;
     
     return this;
   }
   
-  static Allocate = function(length: number) {
+  static Allocate (length: number): ByteBuffer {
     return new ByteBuffer(Buffer.alloc(length, 0x00));
   }
 
-  static Wrap = function(buffer: Buffer) {
+  static Wrap(buffer: Buffer): ByteBuffer {
     return new ByteBuffer(buffer);
   }
 }
