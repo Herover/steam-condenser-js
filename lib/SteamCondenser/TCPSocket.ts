@@ -12,7 +12,7 @@ export default class TCPSocket extends Socket {
     super(address, port);
   }
   
-  connect() {
+  connect(): Promise<void> {
     return new Promise((resolve, reject) => {
       this.socket = net.createConnection({
         host: this.ipAddress,
@@ -32,8 +32,8 @@ export default class TCPSocket extends Socket {
     })
   }
   
-  close() {
-    return new Promise((resolve, reject) => {
+  close(): Promise<void> {
+    return new Promise((resolve) => {
       if (typeof this.socket === "undefined") {
         throw new Error("Socket is undefined")
       }
@@ -103,7 +103,7 @@ export default class TCPSocket extends Socket {
     });
   }
   
-  recv(fn: (buffer: Buffer, rinfo?: any) => boolean) {
+  recv(fn: (buffer: Buffer) => boolean): Promise<boolean> {
     let returned = false;
     return new Promise((resolve, reject) => {
       if (typeof this.socket === "undefined") {

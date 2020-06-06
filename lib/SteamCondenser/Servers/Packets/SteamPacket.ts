@@ -18,15 +18,15 @@ export default class SteamPacket {
     this.contentData = new ByteBuffer(buffer);
   }
   
-  getData() {
+  getData(): Buffer {
     return this.contentData.getBuffer();
   }
   
-  getHeader() {
+  getHeader(): number {
     return this.headerData;
   }
   
-  toBuffer() {
+  toBuffer(): Buffer {
     return Buffer.concat([Buffer.from([0xFF, 0xFF, 0xFF, 0xFF, this.getHeader()]), this.getData()]);
   }
   

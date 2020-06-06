@@ -2,29 +2,28 @@
 
 import Server from "./Server";
 import S2C_CHALLENGE_Packet from "./Packets/S2C_CHALLENGE_Packet";
-import S2A_INFO_BasePacket from "./Packets/S2A_INFO_BasePacket";
+import S2A_INFO_BasePacket, { IInfo } from "./Packets/S2A_INFO_BasePacket";
 import S2A_PLAYER_Packet from "./Packets/S2A_PLAYER_Packet";
 import S2A_RULES_Packet from "./Packets/S2A_RULES_Packet";
 import A2S_PLAYER_Packet from "./Packets/A2S_PLAYER_Packet";
 import A2S_INFO_Packet from "./Packets/A2S_INFO_Packet";
 import A2S_RULES_Packet from "./Packets/A2S_RULES_Packet";
-import Packet from "./Packets/Packet";
 import SteamPacket from "./Packets/SteamPacket";
-import Socket from "../Socket";
 import SteamSocket from "./Sockets/SteamSocket";
 import RCONPacket from "./Packets/RCON/RCONPacket";
+import SteamPlayer from "./SteamPlayer";
 
-export default class GameServer extends Server{
+export default abstract class GameServer extends Server{
   protected rconAuthenticated: boolean;
-  protected ping: any;
-  protected playerHash: any;
-  protected rulesHash: any;
-  protected infoHash: any;
+  protected ping?: number;
+  protected playerHash: {[key: string]: SteamPlayer} = {};
+  protected rulesHash?: {[key: string]: string};
+  protected infoHash = {} as IInfo;
   
   protected challengeNumber = -1;
   protected socket?: SteamSocket;
 
-  getPlayerStatusAttributes(statusHeader: string) {
+  getPlayerStatusAttributes(statusHeader: string): string[] {
     const statusAttributes = [];
     const split = statusHeader.split(/\s+/);
     for(let i = 0; i < split.length; i ++) {
@@ -43,7 +42,7 @@ export default class GameServer extends Server{
     return statusAttributes;
   }
   
-  splitPlayerStatus(attributes: string[], playerStatus: string) {
+  splitPlayerStatus(attributes: string[], playerStatus: string): {[key: string]: string} {
     if(attributes[0] != "userid") {
       playerStatus = playerStatus.replace(/^\d+ +/, "");
     }
@@ -62,7 +61,7 @@ export default class GameServer extends Server{
       data.splice(1, 1);
     }
     
-    const playerData: any = {};
+    const playerData: {[key: string]: string} = {};
     for(let part = 0; part < data.length; part ++) {
       playerData[attributes[part]] = data[part];
     }
@@ -76,8 +75,8 @@ export default class GameServer extends Server{
     this.rconAuthenticated = false;
   }
   
-  getPing() {
-    return new Promise((resolve, reject) => {
+  async getPing(): Promise<number> {
+    return new Promise((resolve) => {
       if(typeof this.ping == "undefined") {
         resolve(this.updatePing());
       }
@@ -87,22 +86,14 @@ export default class GameServer extends Server{
     });
   }
   
-  getPlayers(rconPassword: string) {
-    return new Promise((resolve, reject) => {
-      if(typeof this.playerHash == "undefined") {
-        this.updatePlayers(rconPassword)
-          .then(() => {
-            resolve(this.playerHash);
-          })
-          .catch(reject);
-      }
-      else {
-        resolve(this.playerHash);
-      }
-    });
+  async getPlayers(rconPassword: string): Promise<{[key: string]: SteamPlayer}> {
+    if(typeof this.playerHash == "undefined") {
+      await this.updatePlayers(rconPassword);
+    }
+    return this.playerHash;
   }
   
-  getRules() {
+  async getRules(): Promise<{[key: string]: string}> {
     return new Promise((resolve, reject) => {
       if(typeof this.rulesHash == "undefined") {
         this.updateRules()
@@ -115,18 +106,14 @@ export default class GameServer extends Server{
     });
   }
   
-  getServerInfo() {
-    return new Promise((resolve, reject) => {
-      if(typeof this.infoHash == "undefined") {
-        resolve(this.updateServerInfo());
-      }
-      else {
-        resolve(this.infoHash);
-      }
-    });
+  async getServerInfo(): Promise<IInfo> {
+    if(typeof this.infoHash == "undefined") {
+      await this.updateServerInfo();
+    }
+    return this.infoHash;
   }
   
-  async initialize() {
+  async initialize(): Promise<void> {
     await this.initSocket();
     await this.updatePing();
     await this.updateServerInfo();
@@ -135,7 +122,8 @@ export default class GameServer extends Server{
   
   handleResponseForRequest(requestType: number, repeatOnFailure?: boolean): Promise<void> {
     if(typeof repeatOnFailure == "undefined") {repeatOnFailure = true;}
-    let expectedResponse: Function, requestPacket: SteamPacket;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let expectedResponse: any, requestPacket: SteamPacket;
     switch(requestType) {
       case GameServer.REQUEST_CHALLENGE:
         expectedResponse = S2C_CHALLENGE_Packet;
@@ -203,37 +191,36 @@ export default class GameServer extends Server{
       });
   }
   
-  isRconAuthenticated() {
+  isRconAuthenticated(): boolean {
     return this.rconAuthenticated;
   }
   
-  rconAuth(password: string): Promise<boolean> {throw new Error("Not implemented.");}
-  rconExec(password: string): Promise<string> {throw new Error("Not implemented.");}
+  abstract rconAuth(password: string): Promise<boolean>;
+  abstract rconExec(password: string): Promise<string>;
   
-  updateChallengeNumber() {
+  async updateChallengeNumber(): Promise<void> {
     return this.handleResponseForRequest(GameServer.REQUEST_CHALLENGE);
   }
   
-  async updatePing() {
-    let startTime: number, endTime: number;
+  async updatePing(): Promise<number> {
     if (typeof this.socket === "undefined") {
       throw new Error("socket not set up");
     }
     await this.socket.send(new A2S_INFO_Packet())
-    startTime = new Date().getTime();
+    const startTime = new Date().getTime();
 
     if (typeof this.socket === "undefined") {
       throw new Error("socket not set up");
     }
 
     await this.socket.getReply();
-    endTime = new Date().getTime();
+    const endTime = new Date().getTime();
     this.ping = endTime - startTime;
     
     return this.ping;
   }
   
-  updatePlayers(rconPassword?: string) {
+  async updatePlayers(rconPassword?: string): Promise<{[key: string]: SteamPlayer} | boolean> {
     return this.handleResponseForRequest(GameServer.REQUEST_PLAYER)
       .then((): Promise<string> => {
         if(!this.rconAuthenticated) {
@@ -255,9 +242,9 @@ export default class GameServer extends Server{
           return false;
         }
         
-        let players = [],
-            lines = res.split("\n");
-        for(var i = 0; i < lines.length; i++) {
+        let players = [];
+        const lines = res.split("\n");
+        for(let i = 0; i < lines.length; i++) {
           const line = lines[i];
           if(line.startsWith("#") && line != "#end") {
             players.push(line.substr(1).trim());
@@ -267,7 +254,7 @@ export default class GameServer extends Server{
         const attributes = this.getPlayerStatusAttributes(players[0]);
         players = players.slice(1);
         
-        for(var i = 0; i < players.length; i++) {
+        for(let i = 0; i < players.length; i++) {
           const player = players[i],
               playerData = this.splitPlayerStatus(attributes, player);
           if(typeof this.playerHash[playerData.name] != "undefined") {
@@ -280,43 +267,44 @@ export default class GameServer extends Server{
       .catch((e: Error) => {throw(e);});
   }
   
-  updateRules() {
+  async updateRules(): Promise<void> {
     return this.handleResponseForRequest(GameServer.REQUEST_RULES);
   }
   
-  updateServerInfo() {
+  async updateServerInfo(): Promise<void> {
     return this.handleResponseForRequest(GameServer.REQUEST_INFO);
   }
   
-  toString() {
+  toString(): string {
     let returnString = "";
     returnString += "Ping: " + this.ping + "\n";
     returnString += "Challenge number: " + this.challengeNumber + "\n";
-    
+    // Use infoHash as genereic json object
+    const hash = this.infoHash as unknown as {[key: string]: string | number}
     if(typeof this.infoHash != "undefined") {
       returnString += "Info:\n";
-      for(var key in this.infoHash) {
-        if(this.infoHash[key] instanceof Array) {
+      for(const key in this.infoHash) {
+        if(hash instanceof Array) {
           returnString += "  " + key + ":\n";
-          for(const subkey in this.infoHash[key]) {
-            returnString += "  " + subkey + " = " + this.infoHash[key][subkey] + "\n";
+          for(const subkey in hash) {
+            returnString += "  " + subkey + " = " + hash[subkey] + "\n";
           }
         } else {
-          returnString += "  " + key + ": " + this.infoHash[key] + "\n";
+          returnString += "  " + key + ": " + hash + "\n";
         }
       }
     }
     
     if(typeof this.playerHash != "undefined") {
       returnString += "Players:\n";
-      for(var key in this.playerHash) {
+      for(const key in this.playerHash) {
         returnString += key + "\n";
       }
     }
     
     if(typeof this.rulesHash != "undefined") {
       returnString += "Rules:\n";
-      for(var key in this.rulesHash) {
+      for(const key in this.rulesHash) {
         returnString += "  " + key + ": " + this.rulesHash[key] + "\n";
       }
     }

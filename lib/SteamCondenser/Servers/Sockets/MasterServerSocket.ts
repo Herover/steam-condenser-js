@@ -1,7 +1,6 @@
 "use strict";
 import UDPSocket from "../../UDPSocket";
 import SteamSocket from "./SteamSocket";
-import ByteBuffer from "../../ByteBuffer";
 import SteamPacketFactory from "./../Packets/SteamPacketFactory";
 import SteamPacket from "../Packets/SteamPacket";
 
@@ -12,7 +11,7 @@ export default class MasterServerSocket extends SteamSocket {
     this.socket = new UDPSocket(ipAddress, portNumber);
   }
 
-  async connect() {
+  async connect(): Promise<void> {
     await this.socket.connect();
   }
 

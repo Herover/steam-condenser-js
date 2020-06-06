@@ -24,7 +24,7 @@ export default class S2A_RULES_Packet extends SteamPacket {
     }
   }
   
-  getRulesArray() {
+  getRulesArray(): {[key: string]: string} {
     return this.rules;
   }
 }

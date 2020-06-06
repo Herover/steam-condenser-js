@@ -1,6 +1,6 @@
 'use strict';
 
-export default class Server {
+export default abstract class Server {
   protected ipAddress: string;
   protected port: number;
 
@@ -15,6 +15,6 @@ export default class Server {
   }
   
   
-  disconnect() {throw new Error("Not implemented disconnect");}
-  initSocket(): Promise<void> {throw new Error("Not implemented initSocket");}
+  abstract disconnect(): Promise<void>;
+  abstract initSocket(): Promise<void>;
 }

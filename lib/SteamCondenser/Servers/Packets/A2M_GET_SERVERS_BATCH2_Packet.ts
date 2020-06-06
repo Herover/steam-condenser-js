@@ -25,7 +25,7 @@ export default class A2M_GET_SERVERS_BATCH2_Packet extends SteamPacket {
     this.startIp = startIp;
   }
 
-  toBuffer() {
+  toBuffer(): Buffer {
     return Buffer.concat([Buffer.from([this.headerData, this.regionCode]), Buffer.from(this.startIp), Buffer.from([0x00]), Buffer.from(this.filter), Buffer.from([0x00])]);
   }
 }

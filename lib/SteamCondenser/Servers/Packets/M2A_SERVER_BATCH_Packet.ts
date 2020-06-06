@@ -1,6 +1,5 @@
 "use strict";
 import SteamPacket from "./SteamPacket";
-import MasterServer from "../MasterServer";
 
 export default class M2A_SERVER_BATCH_Packet extends SteamPacket {
   private serverArray: string[];
@@ -14,18 +13,18 @@ export default class M2A_SERVER_BATCH_Packet extends SteamPacket {
     this.serverArray = [];
     
     while(this.contentData.remaining() > 0) {
-      let ip = (this.contentData.getByte() & 0xFF) + "." +
+      const ip = (this.contentData.getByte() & 0xFF) + "." +
           (this.contentData.getByte() & 0xFF) + "." +
           (this.contentData.getByte() & 0xFF) + "." +
-          (this.contentData.getByte() & 0xFF),
-      port = this.contentData.getUShort() ;
+          (this.contentData.getByte() & 0xFF);
+      let port = this.contentData.getUShort() ;
       port = ((port & 0xFF) << 8) + (port >> 8);
 
       this.serverArray.push(ip + ":" + port);
     }
   }
   
-  getServers() {
+  getServers(): string[] {
     return this.serverArray;
   }
 }

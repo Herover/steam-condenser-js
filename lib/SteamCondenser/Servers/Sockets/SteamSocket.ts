@@ -14,7 +14,7 @@ export default class SteamSocket {
 
   protected timeout: number;
 
-  setTimeout(timeout: number) {
+  setTimeout(timeout: number): void {
     this.timeout = timeout;
   }
   
@@ -31,11 +31,11 @@ export default class SteamSocket {
     this.timeout = 15000;
   }
   
-  connect() {
+  async connect(): Promise<void> {
     return this.socket.connect();
   }
   
-  close() {
+  async close(): Promise<void> {
     if(typeof this.socket != "undefined" && this.socket.isOpen()) {
       return this.socket.close();
     }
@@ -46,7 +46,7 @@ export default class SteamSocket {
   
   getReply(): Promise<SteamPacket | RCONPacket | void> {throw new Error("Not implemented.");}
   
-  async receivePacket(bufferLength?: number) {
+  async receivePacket(bufferLength?: number): Promise<number> {
     if(typeof bufferLength == "undefined") {
       bufferLength = 0;
     }
@@ -67,7 +67,7 @@ export default class SteamSocket {
       });
   }
   
-  send(dataPacket: SteamPacket | RCONPacket) {
+  send(dataPacket: SteamPacket | RCONPacket): Promise<void> {
     return this.socket.send(dataPacket.toBuffer());
   }
 }

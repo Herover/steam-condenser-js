@@ -5,10 +5,8 @@ import RCONSocket from "./Sockets/RCONSocket";
 import SourceSocket from "./Sockets/SourceSocket";
 import RCON_SERVERDATA_AUTH_Packet from "./Packets/RCON/RCON_SERVERDATA_AUTH_Packet";
 import RCON_SERVERDATA_EXECCOMMAND_Packet from "./Packets/RCON/RCON_SERVERDATA_EXECCOMMAND_Packet";
-import SERVERDATA_RESPONSE_VALUE_Packet from "./Packets/RCON/RCON_SERVERDATA_RESPONSE_VALUE_Packet";
 import RCON_Terminator from "./Packets/RCON/RCON_Terminator";
 import RCONPacket from "./Packets/RCON/RCONPacket";
-import SteamPacket from "./Packets/SteamPacket";
 
 export class SourceServer extends GameServer {
   private rconSocket?: RCONSocket;
@@ -17,7 +15,7 @@ export class SourceServer extends GameServer {
   
   constructor(ipAddress: string, portNumber: number) {super(ipAddress, portNumber);}
 
-  async disconnect() {
+  async disconnect(): Promise<void> {
     await Promise.all([
       new Promise((resolve) => {
         if (typeof this.rconSocket === "undefined") {
@@ -34,7 +32,7 @@ export class SourceServer extends GameServer {
     ]);
   }
   
-  generateRconRequestId() {
+  generateRconRequestId(): number {
     return Math.floor(Math.random() * Math.pow(2, 16));
   }
   
@@ -47,7 +45,7 @@ export class SourceServer extends GameServer {
     await this.socket.connect();
   }
   
-  async rconAuth(password: string) {
+  async rconAuth(password: string): Promise<boolean> {
     this.rconRequestId = this.generateRconRequestId();
 
     if (typeof this.rconSocket === "undefined") {
@@ -77,14 +75,14 @@ export class SourceServer extends GameServer {
     return this.rconAuthenticated;
   }
   
-  async rconExec(command: string) {
+  async rconExec(command: string): Promise<string> {
     if(!this.rconAuthenticated) {
       throw new Error("RCONNoAuthException");
     }
 
     let isMulti = false,
-        responsePacket: RCONPacket | void,
-        response: string[] = [];
+        responsePacket: RCONPacket | void;
+    const response: string[] = [];
     if (typeof this.rconSocket === "undefined") {
       throw new Error("rconSocket not ready");
     }
@@ -119,8 +117,8 @@ export class SourceServer extends GameServer {
     return response.slice(0, response.length-2).join().trim(); 
   }
 
-  static GetMaster = function() {
+  static GetMaster(): MasterServer {
     return new MasterServer(MasterServer.SOURCE_MASTER_SERVER);
-  };
+  }
     
 }
