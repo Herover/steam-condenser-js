@@ -37,7 +37,7 @@ export default class TCPSocket extends Socket {
       if (typeof this.socket === "undefined") {
         throw new Error("Socket is undefined")
       }
-      this.socket.on("end", () => resolve());
+      this.socket.on("close", () => resolve());
       this.socket.end();
     })
   }
