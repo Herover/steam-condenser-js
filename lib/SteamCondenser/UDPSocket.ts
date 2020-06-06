@@ -68,6 +68,7 @@ export default class UDPSocket extends Socket {
         if (this.receivedBytes > 0) {
           if (bytes == 0) {
             this.socket.off("message", dataFn);
+            this.socket.off("error", errorFn);
             this.receivedBytes = 0;
             resolve(this.buffer);
           } else {
@@ -78,12 +79,19 @@ export default class UDPSocket extends Socket {
             stored += readBytes;
             if (stored >= bytes) {
               this.socket.off("message", dataFn);
+              this.socket.off("error", errorFn);
               resolve(received);
             }
           }
         }
       }
+
+      const errorFn = (error: Error) => {
+        reject(error);
+      }
+
       this.socket.on("message", dataFn);
+      this.socket.on("error", errorFn);
       dataFn();
     });
   }
