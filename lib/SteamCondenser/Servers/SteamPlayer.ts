@@ -1,21 +1,30 @@
-"use strict";
 
 export default class SteamPlayer {
   private connectTime: number;
+
   private id: number;
+
   private name: string;
+
   private score: number;
+
   private extended: boolean;
 
   private connectionId?: number;
-  private state?: string;
-  private steamId?: string;
-  private loss?: number;
-  private ping?: number;
-  private ipAddress?: string;
-  private clientPort?: number;
-  private rate?: number;
 
+  private state?: string;
+
+  private steamId?: string;
+
+  private loss?: number;
+
+  private ping?: number;
+
+  private ipAddress?: string;
+
+  private clientPort?: number;
+
+  private rate?: number;
 
 
   constructor(id: number, name: string, score: number, connectTime: number) {
@@ -36,29 +45,29 @@ export default class SteamPlayer {
    *     player
    */
   addInformation(playerData: {[key: string]: string}): void {
-    if(playerData['name'] != this.name) {
+    if (playerData.name !== this.name) {
       throw new Error('Information to add belongs to a different player.');
     }
 
     this.extended = true;
-    this.connectionId = Number.parseInt(playerData['userid']);
-    if(typeof playerData['state'] != "undefined") {
-      this.state = playerData['state'];
+    this.connectionId = Number.parseInt(playerData.userid, 10);
+    if (typeof playerData.state !== 'undefined') {
+      this.state = playerData.state;
     }
-    this.steamId = playerData['uniqueid'];
+    this.steamId = playerData.uniqueid;
 
-    if(!this.isBot()) {
-      this.loss = Number.parseInt(playerData['loss']);
-      this.ping = Number.parseInt(playerData['ping']);
+    if (!this.isBot()) {
+      this.loss = Number.parseInt(playerData.loss, 10);
+      this.ping = Number.parseInt(playerData.ping, 10);
 
-      if(typeof playerData['state'] != "undefined") {
-        const address = playerData['adr'].split(':');
-        this.ipAddress  = address[0];
-        this.clientPort = Number.parseInt(address[1]);
+      if (typeof playerData.state !== 'undefined') {
+        const address = playerData.adr.split(':');
+        [this.ipAddress] = address;
+        this.clientPort = Number.parseInt(address[1], 10);
       }
 
-      if(typeof playerData['state'] != "undefined") {
-        this.rate = Number.parseInt(playerData['rate']);
+      if (typeof playerData.state !== 'undefined') {
+        this.rate = Number.parseInt(playerData.rate, 10);
       }
     }
   }
@@ -177,7 +186,7 @@ export default class SteamPlayer {
    * @return bool <var>true</var> if this player is a bot
    */
   isBot(): boolean | undefined {
-    return this.steamId == 'BOT';
+    return this.steamId === 'BOT';
   }
 
   /**
@@ -197,10 +206,9 @@ export default class SteamPlayer {
    * @return string A string representing this player
    */
   toString(): string {
-    if(this.extended) {
-      return "#" + this.connectionId + " \"" + this.name + "\", SteamID: " + this.steamId + " Score: " + this.score + ", Time: " + this.connectTime;
-    } else {
-      return "#" + this.id + " \"" + this.name + "\", Score: " + this.score + ", Time: " + this.connectTime;
+    if (this.extended) {
+      return `#${this.connectionId} "${this.name}", SteamID: ${this.steamId} Score: ${this.score}, Time: ${this.connectTime}`;
     }
+    return `#${this.id} "${this.name}", Score: ${this.score}, Time: ${this.connectTime}`;
   }
 }

@@ -1,5 +1,5 @@
-'use strict';
-import RCONPacket from "./RCONPacket";
+
+import RCONPacket from './RCONPacket';
 
 export default class RCON_SERVERDATA_AUTH_Packet extends RCONPacket {
   constructor(id: number, pw: string) {

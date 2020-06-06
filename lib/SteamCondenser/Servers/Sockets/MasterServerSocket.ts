@@ -1,8 +1,8 @@
-"use strict";
-import UDPSocket from "../../UDPSocket";
-import SteamSocket from "./SteamSocket";
-import SteamPacketFactory from "./../Packets/SteamPacketFactory";
-import SteamPacket from "../Packets/SteamPacket";
+
+import UDPSocket from '../../UDPSocket';
+import SteamSocket from './SteamSocket';
+import SteamPacketFactory from '../Packets/SteamPacketFactory';
+import SteamPacket from '../Packets/SteamPacket';
 
 export default class MasterServerSocket extends SteamSocket {
   constructor(ipAddress: string, portNumber: number) {
@@ -18,8 +18,8 @@ export default class MasterServerSocket extends SteamSocket {
   async getReply(): Promise<SteamPacket> {
     await this.receivePacket();
 
-    if (this.buffer.getLong() != -1) {
-      throw new Error("Master query response has wrong packet header.")
+    if (this.buffer.getLong() !== -1) {
+      throw new Error('Master query response has wrong packet header.');
     }
 
     const packet = SteamPacketFactory.GetPacketFromData(this.buffer.get());

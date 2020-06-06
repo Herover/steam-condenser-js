@@ -1,5 +1,5 @@
-"use strict";
-import SteamPacket from "./SteamPacket";
+
+import SteamPacket from './SteamPacket';
 
 export default class S2A_INFO_BasePacket extends SteamPacket {
   protected info: IInfo; // FIXME: type
@@ -8,7 +8,7 @@ export default class S2A_INFO_BasePacket extends SteamPacket {
     super(headerData, contentData);
     this.info = {} as IInfo;
   }
-  
+
   getInfo(): IInfo {
     return this.info;
   }
