@@ -2,6 +2,7 @@
 import Socket from "./Socket";
 import net from 'net';
 import SteamPacket from "./Servers/Packets/SteamPacket";
+import { doWithin } from "./asyncTimer";
 
 export default class TCPSocket extends Socket {
   protected socket?: net.Socket;
@@ -68,7 +69,7 @@ export default class TCPSocket extends Socket {
   recvBytes(bytes = 0): Promise<Buffer> {
     const received = Buffer.alloc(bytes);
     let stored = 0;
-    return new Promise<Buffer>(resolve => {
+    return doWithin(new Promise<Buffer>(resolve => {
       const dataFn = () => {
         if (this.receivedBytes > 0) {
           if (bytes == 0) {
@@ -100,12 +101,12 @@ export default class TCPSocket extends Socket {
       }
       this.socket.on("data", dataFn);
       dataFn();
-    });
+    }), this.timeout);
   }
   
   recv(fn: (buffer: Buffer) => boolean): Promise<boolean> {
     let returned = false;
-    return new Promise((resolve, reject) => {
+    return doWithin(new Promise((resolve, reject) => {
       if (typeof this.socket === "undefined") {
         throw new Error("Socket is undefined")
       }
@@ -135,6 +136,6 @@ export default class TCPSocket extends Socket {
       };
       this.socket.on("data", dataFn);
       this.socket.on("error", errorFn);
-    });
+    }), this.timeout);
   }
 }

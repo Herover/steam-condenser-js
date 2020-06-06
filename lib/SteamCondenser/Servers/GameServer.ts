@@ -274,6 +274,11 @@ export default abstract class GameServer extends Server{
   async updateServerInfo(): Promise<void> {
     return this.handleResponseForRequest(GameServer.REQUEST_INFO);
   }
+
+  setTimeout(time: number): void {
+    super.setTimeout(time);
+    this.socket?.setTimeout(time);
+  }
   
   toString(): string {
     let returnString = "";

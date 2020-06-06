@@ -12,10 +12,11 @@ export default class SteamSocket {
   protected socket: UDPSocket | TCPSocket;
   protected buffer: ByteBuffer = new ByteBuffer();
 
-  protected timeout: number;
+  protected timeout = 30000;
 
   setTimeout(timeout: number): void {
     this.timeout = timeout;
+    this.socket.setTimeout(timeout);
   }
   
   constructor(ipAddress: string, portNumber: number) {
@@ -27,8 +28,7 @@ export default class SteamSocket {
     this.portNumber = portNumber;
 
     this.socket = new UDPSocket(ipAddress, portNumber);
-
-    this.timeout = 15000;
+    this.socket.setTimeout(this.timeout);
   }
   
   async connect(): Promise<void> {
@@ -38,9 +38,6 @@ export default class SteamSocket {
   async close(): Promise<void> {
     if(typeof this.socket != "undefined" && this.socket.isOpen()) {
       return this.socket.close();
-    }
-    else {
-      return new Promise(function(resolve) {resolve();});
     }
   }
   
@@ -56,15 +53,13 @@ export default class SteamSocket {
     } else {
       this.buffer = ByteBuffer.Allocate(bufferLength);
     }
-    return this.socket.recvBytes(bufferLength)
-      .then((data) => {
-        this.buffer.clear();
-        this.buffer.put(data);
-        this.buffer = ByteBuffer.Wrap(data);
-        const bytesRead = data.length;
-        this.buffer.rewind();
-        return bytesRead;
-      });
+    const data = await this.socket.recvBytes(bufferLength);
+    this.buffer.clear();
+    this.buffer.put(data);
+    this.buffer = ByteBuffer.Wrap(data);
+    const bytesRead = data.length;
+    this.buffer.rewind();
+    return bytesRead;
   }
   
   send(dataPacket: SteamPacket | RCONPacket): Promise<void> {

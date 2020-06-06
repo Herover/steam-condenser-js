@@ -1,6 +1,7 @@
 'use strict';
 import Socket from "./Socket";
 import dgram from "dgram";
+import { doWithin } from "./asyncTimer";
 
 const bufferSize = 4096;
 
@@ -61,9 +62,8 @@ export default class UDPSocket extends Socket {
   recvBytes(bytes = 0): Promise<Buffer> {
     const received = Buffer.alloc(bytes);
     let stored = 0;
-    
 
-    return new Promise<Buffer>(resolve => {
+    return doWithin(new Promise<Buffer>((resolve, reject) => {
       const dataFn = () => {
         if (this.receivedBytes > 0) {
           if (bytes == 0) {
@@ -93,12 +93,12 @@ export default class UDPSocket extends Socket {
       this.socket.on("message", dataFn);
       this.socket.on("error", errorFn);
       dataFn();
-    });
+    }), this.timeout);
   }
 
   recv(fn: (buffer: Buffer) => boolean): Promise<boolean> {
     let returned = false;
-    return new Promise((resolve, reject) => {
+    return doWithin(new Promise((resolve, reject) => {
       const dataFn = (data: Buffer) => {
         if(returned){
           return;
@@ -120,6 +120,6 @@ export default class UDPSocket extends Socket {
       };
       this.socket.on("message", dataFn);
       this.socket.on("error", errorFn);
-    });
+    }), this.timeout);
   }
 }

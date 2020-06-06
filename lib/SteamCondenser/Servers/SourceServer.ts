@@ -21,13 +21,13 @@ export class SourceServer extends GameServer {
         if (typeof this.rconSocket === "undefined") {
           throw new Error("rconSocket not ready");
         }
-        this.rconSocket.close().then(function(){resolve();});
+        this.rconSocket.close().then(resolve);
       }),
       new Promise((resolve) => {
         if (typeof this.socket === "undefined") {
           throw new Error("socket not ready");
         }
-        this.socket.close().then(function(){resolve();});
+        this.socket.close().then(resolve);
       }),
     ]);
   }
@@ -42,6 +42,10 @@ export class SourceServer extends GameServer {
     if (typeof this.socket === "undefined") {
       throw new Error("socket not ready");
     }
+
+    this.socket.setTimeout(this.timeout);
+    this.rconSocket.setTimeout(this.timeout);
+
     await this.socket.connect();
   }
   
@@ -115,6 +119,11 @@ export class SourceServer extends GameServer {
     );
 
     return response.slice(0, response.length-2).join().trim(); 
+  }
+  setTimeout(time: number): void {
+    super.setTimeout(time);
+    this.socket?.setTimeout(time);
+    this.rconSocket?.setTimeout(time);
   }
 
   static GetMaster(): MasterServer {

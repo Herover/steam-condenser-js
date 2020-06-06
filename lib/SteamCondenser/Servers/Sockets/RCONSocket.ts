@@ -15,7 +15,6 @@ export default class RCONSocket extends SteamSocket {
     if(typeof this.socket != "undefined") {
       return super.close();
     }
-    return new Promise((resolve) => {resolve();});
   }
   
   async send(dataPacket: RCONPacket): Promise<void> {

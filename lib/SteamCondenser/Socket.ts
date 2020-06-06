@@ -8,6 +8,7 @@ export default abstract class Socket {
   protected port: number;
   protected open: boolean;
   protected socket?: net.Socket | dgram.Socket;
+  protected timeout = 30000;
 
   constructor(address: string, port: number) {
     if(address.indexOf(":") != -1) {
@@ -34,6 +35,10 @@ export default abstract class Socket {
   // Receive data
   // fn returns true when no more packets are expected
   abstract recv(fn: (buffer: Buffer) => boolean): Promise<boolean>;
+
+  setTimeout(time: number): void {
+    this.timeout = time;
+  }
   
   isOpen(): boolean {
     if(typeof this.socket == "undefined") {
