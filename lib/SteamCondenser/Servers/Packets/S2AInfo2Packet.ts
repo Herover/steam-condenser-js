@@ -1,9 +1,9 @@
 /* eslint-disable no-bitwise */
 
-import S2A_INFO_BasePacket from './S2A_INFO_BasePacket';
+import S2AInfoBasePacket from './S2AInfoBasePacket';
 import SteamPacket from './SteamPacket';
 
-export default class S2A_INFO2_Packet extends S2A_INFO_BasePacket {
+export default class S2AInfo2Packet extends S2AInfoBasePacket {
   constructor(data: Buffer) {
     super(SteamPacket.S2A_INFO2_HEADER, data);
 
@@ -24,21 +24,21 @@ export default class S2A_INFO2_Packet extends S2A_INFO_BasePacket {
 
     if (this.contentData.remaining() > 0) {
       const extraDataFlag = this.contentData.getByte();
-      if (extraDataFlag & S2A_INFO2_Packet.EDF_GAME_PORT) {
+      if (extraDataFlag & S2AInfo2Packet.EDF_GAME_PORT) {
         this.info.serverPort = this.contentData.getShort();
       }
-      if (extraDataFlag & S2A_INFO2_Packet.EDF_SERVER_ID) {
+      if (extraDataFlag & S2AInfo2Packet.EDF_SERVER_ID) {
         this.info.serverId = this.contentData.getUnsignedLong()
           | (this.contentData.getUnsignedLong() << 32);
       }
-      if (extraDataFlag & S2A_INFO2_Packet.EDF_SOURCE_TV) {
+      if (extraDataFlag & S2AInfo2Packet.EDF_SOURCE_TV) {
         this.info.tvPort = this.contentData.getShort();
         this.info.tvName = this.contentData.getString();
       }
-      if (extraDataFlag & S2A_INFO2_Packet.EDF_SERVER_TAGS) {
+      if (extraDataFlag & S2AInfo2Packet.EDF_SERVER_TAGS) {
         this.info.serverTags = this.contentData.getString();
       }
-      if (extraDataFlag & S2A_INFO2_Packet.EDF_GAME_ID) {
+      if (extraDataFlag & S2AInfo2Packet.EDF_GAME_ID) {
         this.info.gameId = this.contentData.getUnsignedLong()
           | (this.contentData.getUnsignedLong() << 32);
       }

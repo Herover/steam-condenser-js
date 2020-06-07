@@ -2,7 +2,7 @@
 
 import SteamPacket from './SteamPacket';
 
-export default class M2A_SERVER_BATCH_Packet extends SteamPacket {
+export default class M2AServerBatchPacket extends SteamPacket {
   private serverArray: string[];
 
   constructor(contentData: Buffer) {

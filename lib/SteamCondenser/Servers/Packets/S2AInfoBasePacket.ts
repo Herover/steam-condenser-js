@@ -1,7 +1,7 @@
 
 import SteamPacket from './SteamPacket';
 
-export default class S2A_INFO_BasePacket extends SteamPacket {
+export default class S2AInfoBasePacket extends SteamPacket {
   protected info: IInfo; // FIXME: type
 
   constructor(headerData: number, contentData: Buffer) {

@@ -2,7 +2,7 @@
 import SteamPacket from './SteamPacket';
 import SteamPlayer from '../SteamPlayer';
 
-export default class S2A_PLAYER_Packet extends SteamPacket {
+export default class S2APlayerPacket extends SteamPacket {
   private playerHash: {[key: string]: SteamPlayer};
 
   constructor(contentData: Buffer) {

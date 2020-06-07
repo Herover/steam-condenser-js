@@ -1,5 +1,5 @@
-import SERVERDATA_RESPONSE_VALUE_Packet from './RCON_SERVERDATA_RESPONSE_VALUE_Packet';
-import SERVERDATA_AUTH_RESPONSE_Packet from './RCON_SERVERDATA_AUTH_RESPONSE_Packet';
+import ServerdataResponseValuePacket from './RCONServerdataResponseValuePacket';
+import ServerdataAuthResponsePacket from './RCONServerdataAuthResponsePacket';
 import RCONPacket from './RCONPacket';
 
 export default class RCONPacketFactory {
@@ -10,9 +10,9 @@ export default class RCONPacketFactory {
     const body = buffer.slice(8, buffer.length - 2);
     switch (type) {
       case 0x00:
-        return new SERVERDATA_RESPONSE_VALUE_Packet(requestID, body);
+        return new ServerdataResponseValuePacket(requestID, body);
       case 0x02:
-        return new SERVERDATA_AUTH_RESPONSE_Packet(requestID);
+        return new ServerdataAuthResponsePacket(requestID);
       default:
         throw new Error(`Unknown packet type ${type}`);
     }

@@ -1,10 +1,10 @@
 /* eslint-disable no-await-in-loop */
 
-import M2A_SERVER_BATCH_Packet from './Packets/M2A_SERVER_BATCH_Packet';
+import M2AServerBatchPacket from './Packets/M2AServerBatchPacket';
 
 import Server from './Server';
 // eslint-disable-next-line import/no-cycle
-import A2M_GET_SERVERS_BATCH2_Packet from './Packets/A2M_GET_SERVERS_BATCH2_Packet';
+import A2MGetServerBatch2Packet from './Packets/A2MGetServerBatch2Packet';
 import MasterSErverSocket from './Sockets/MasterServerSocket';
 
 class MasterServer extends Server {
@@ -31,13 +31,13 @@ class MasterServer extends Server {
     for (;;) {
       failCount = 0;
       do {
-        await this.socket?.send(new A2M_GET_SERVERS_BATCH2_Packet(regionCode, lastResult, filter));
+        await this.socket?.send(new A2MGetServerBatch2Packet(regionCode, lastResult, filter));
 
         try {
           if (typeof this.socket === 'undefined') {
             throw new Error('Socket not ready');
           }
-          const serverStrArray = (await this.socket.getReply() as M2A_SERVER_BATCH_Packet)
+          const serverStrArray = (await this.socket.getReply() as M2AServerBatchPacket)
             .getServers();
           page += 1;
           for (let i = 0; i < serverStrArray.length; i += 1) {

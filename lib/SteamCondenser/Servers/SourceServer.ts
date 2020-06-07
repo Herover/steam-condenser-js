@@ -3,9 +3,9 @@ import { MasterServer } from './MasterServer';
 import GameServer from './GameServer';
 import RCONSocket from './Sockets/RCONSocket';
 import SourceSocket from './Sockets/SourceSocket';
-import RCON_SERVERDATA_AUTH_Packet from './Packets/RCON/RCON_SERVERDATA_AUTH_Packet';
-import RCON_SERVERDATA_EXECCOMMAND_Packet from './Packets/RCON/RCON_SERVERDATA_EXECCOMMAND_Packet';
-import RCON_Terminator from './Packets/RCON/RCON_Terminator';
+import RCONServerdataAuthPacket from './Packets/RCON/RCONServerdataAuthPacket';
+import RCONServerdataExeccommandPacket from './Packets/RCON/RCONServerdataExeccommandPacket';
+import RCONTerminator from './Packets/RCON/RCONTerminator';
 import RCONPacket from './Packets/RCON/RCONPacket';
 
 class SourceServer extends GameServer {
@@ -52,7 +52,7 @@ class SourceServer extends GameServer {
       throw new Error('rconSocket not set up');
     }
 
-    await this.rconSocket.send(new RCON_SERVERDATA_AUTH_Packet(this.rconRequestId, password));
+    await this.rconSocket.send(new RCONServerdataAuthPacket(this.rconRequestId, password));
 
     if (typeof this.rconSocket === 'undefined') {
       throw new Error('rconSocket not set up');
@@ -86,13 +86,13 @@ class SourceServer extends GameServer {
     if (typeof this.rconSocket === 'undefined') {
       throw new Error('rconSocket not ready');
     }
-    await this.rconSocket.send(new RCON_SERVERDATA_EXECCOMMAND_Packet(this.rconRequestId, command));
+    await this.rconSocket.send(new RCONServerdataExeccommandPacket(this.rconRequestId, command));
 
     do {
       // eslint-disable-next-line no-await-in-loop
       responsePacket = await this.rconSocket.getReply();
 
-      if (typeof responsePacket === 'undefined' || responsePacket instanceof RCON_SERVERDATA_AUTH_Packet) {
+      if (typeof responsePacket === 'undefined' || responsePacket instanceof RCONServerdataAuthPacket) {
         this.rconAuthenticated = false;
         throw new Error('RCONNoAuthException');
       }
@@ -102,7 +102,7 @@ class SourceServer extends GameServer {
         if (typeof this.rconSocket === 'undefined') {
           throw new Error('rconSocket not set up');
         }
-        this.rconSocket.send(new RCON_Terminator(this.rconRequestId));
+        this.rconSocket.send(new RCONTerminator(this.rconRequestId));
       }
 
       response.push(responsePacket.body);

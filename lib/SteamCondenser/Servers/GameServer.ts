@@ -1,12 +1,11 @@
-
 import Server from './Server';
-import S2C_CHALLENGE_Packet from './Packets/S2C_CHALLENGE_Packet';
-import S2A_INFO_BasePacket, { IInfo } from './Packets/S2A_INFO_BasePacket';
-import S2A_PLAYER_Packet from './Packets/S2A_PLAYER_Packet';
-import S2A_RULES_Packet from './Packets/S2A_RULES_Packet';
-import A2S_PLAYER_Packet from './Packets/A2S_PLAYER_Packet';
-import A2S_INFO_Packet from './Packets/A2S_INFO_Packet';
-import A2S_RULES_Packet from './Packets/A2S_RULES_Packet';
+import S2CChallengePacket from './Packets/S2CChallengePacket';
+import S2AInfoBasePacket, { IInfo } from './Packets/S2AInfoBasePacket';
+import S2APlayerPacket from './Packets/S2APlayerPacket';
+import S2ARulesPacket from './Packets/S2ARulesPacket';
+import A2SPlayerPacket from './Packets/A2SPlayerPacket';
+import A2SInfoPacket from './Packets/A2SInfoPacket';
+import A2SRulesPacket from './Packets/A2SRulesPacket';
 import SteamPacket from './Packets/SteamPacket';
 import SteamSocket from './Sockets/SteamSocket';
 import RCONPacket from './Packets/RCON/RCONPacket';
@@ -82,20 +81,20 @@ export default abstract class GameServer extends Server {
       requestPacket: SteamPacket;
     switch (requestType) {
       case GameServer.REQUEST_CHALLENGE:
-        expectedResponse = S2C_CHALLENGE_Packet;
-        requestPacket = new A2S_PLAYER_Packet();
+        expectedResponse = S2CChallengePacket;
+        requestPacket = new A2SPlayerPacket();
         break;
       case GameServer.REQUEST_INFO:
-        expectedResponse = S2A_INFO_BasePacket;
-        requestPacket = new A2S_INFO_Packet();
+        expectedResponse = S2AInfoBasePacket;
+        requestPacket = new A2SInfoPacket();
         break;
       case GameServer.REQUEST_PLAYER:
-        expectedResponse = S2A_PLAYER_Packet;
-        requestPacket = new A2S_PLAYER_Packet(this.challengeNumber);
+        expectedResponse = S2APlayerPacket;
+        requestPacket = new A2SPlayerPacket(this.challengeNumber);
         break;
       case GameServer.REQUEST_RULES:
-        expectedResponse = S2A_RULES_Packet;
-        requestPacket = new A2S_RULES_Packet(this.challengeNumber);
+        expectedResponse = S2ARulesPacket;
+        requestPacket = new A2SRulesPacket(this.challengeNumber);
         break;
       default:
         throw new Error('Called with wrong request type.');
@@ -116,13 +115,13 @@ export default abstract class GameServer extends Server {
         if (!(responsePacket instanceof SteamPacket)) {
           throw new Error(`Invalid response packet ${responsePacket}`);
         }
-        if (responsePacket instanceof S2A_INFO_BasePacket) {
+        if (responsePacket instanceof S2AInfoBasePacket) {
           this.infoHash = responsePacket.getInfo();
-        } else if (responsePacket instanceof S2A_PLAYER_Packet) {
+        } else if (responsePacket instanceof S2APlayerPacket) {
           this.playerHash = responsePacket.getPlayerHash();
-        } else if (responsePacket instanceof S2A_RULES_Packet) {
+        } else if (responsePacket instanceof S2ARulesPacket) {
           this.rulesHash = responsePacket.getRulesArray();
-        } else if (responsePacket instanceof S2C_CHALLENGE_Packet) {
+        } else if (responsePacket instanceof S2CChallengePacket) {
           this.challengeNumber = responsePacket.getChallengeNumber();
         } else {
           throw new Error(`Response of type ${responsePacket}cannot be handled by this method.`);
@@ -130,9 +129,11 @@ export default abstract class GameServer extends Server {
 
         if (!(responsePacket instanceof expectedResponse)) {
           // TODO: Logger
+          /* eslint-disable no-console */
           console.error('was', responsePacket);
           console.error('expected', expectedResponse);
           console.error('sent', requestPacket);
+          /* eslint-enable no-console */
           if (repeatOnFailure) {
             return this.handleResponseForRequest(requestType, false);
           }
@@ -161,7 +162,7 @@ export default abstract class GameServer extends Server {
     if (typeof this.socket === 'undefined') {
       throw new Error('socket not set up');
     }
-    await this.socket.send(new A2S_INFO_Packet());
+    await this.socket.send(new A2SInfoPacket());
     const startTime = new Date().getTime();
 
     if (typeof this.socket === 'undefined') {

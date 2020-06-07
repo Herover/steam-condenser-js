@@ -3,7 +3,7 @@ import http from 'http';
 import xmldoc from 'xmldoc';
 
 module.exports = class XMLData {
-  getData(url: string) {
+  static GetData(url: string) {
     return new Promise((resolve, reject) => {
       http.get(url, (res) => {
         if (res.statusCode !== 200) {

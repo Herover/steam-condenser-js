@@ -1,7 +1,7 @@
 
 import SteamPacket from './SteamPacket';
 
-export default class S2A_RULES_Packet extends SteamPacket {
+export default class S2ARulesPacket extends SteamPacket {
   private rules: { [key:string]:string; } = {};
 
   constructor(contentData: Buffer) {
@@ -13,11 +13,11 @@ export default class S2A_RULES_Packet extends SteamPacket {
     const rulesCount = this.contentData.getShort();
     this.rules = {};
 
-    for (let x = 0; x < rulesCount; x++) {
+    for (let x = 0; x < rulesCount; x += 1) {
       const rule = this.contentData.getString();
       const value = this.contentData.getString();
 
-      if (rule == '') {
+      if (rule === '') {
         // break;
       }
       this.rules[rule] = value;

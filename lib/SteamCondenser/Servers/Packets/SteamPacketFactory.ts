@@ -1,11 +1,11 @@
 
 import SteamPacket from './SteamPacket';
-import S2C_CHALLENGE_Packet from './S2C_CHALLENGE_Packet';
-import S2A_INFO2_Packet from './S2A_INFO2_Packet';
-import S2A_PLAYER_Packet from './S2A_PLAYER_Packet';
-import S2A_RULES_Packet from './S2A_RULES_Packet';
-import A2S_INFO_Packet from './A2S_INFO_Packet';
-import M2A_SERVER_BATCH_Packet from './M2A_SERVER_BATCH_Packet';
+import S2CChallengePacket from './S2CChallengePacket';
+import S2AInfo2Packet from './S2AInfo2Packet';
+import S2APlayerPacket from './S2APlayerPacket';
+import S2ARulesPacket from './S2ARulesPacket';
+import A2SInfoPacket from './A2SInfoPacket';
+import M2AServerBatchPacket from './M2AServerBatchPacket';
 
 export default class SteamPacketFactory {
   static GetPacketFromData(rawData: Buffer): SteamPacket { // TODO
@@ -13,34 +13,34 @@ export default class SteamPacketFactory {
     const data = rawData.slice(1);
     switch (header) {
       case SteamPacket.A2S_INFO_HEADER:
-        return new A2S_INFO_Packet();
+        return new A2SInfoPacket();
 
       case SteamPacket.S2A_INFO_DETAILED_HEADER:
         throw new Error('Inimplemented S2A_INFO_DETAILED_HEADER packet recieved'); // return new S2A_INFO_DETAILED_Packet(data);
 
       case SteamPacket.S2A_INFO2_HEADER:
-        return new S2A_INFO2_Packet(data);
+        return new S2AInfo2Packet(data);
 
       case SteamPacket.A2S_PLAYER_HEADER:
-        throw new Error('Inimplemented A2S_PLAYER_HEADER packet recieved'); // return new A2S_PLAYER_Packet(Helper.integerFromByteArray(data));
+        throw new Error('Inimplemented A2S_PLAYER_HEADER packet recieved'); // return new A2SPlayerPacket(Helper.integerFromByteArray(data));
 
       case SteamPacket.S2A_PLAYER_HEADER:
-        return new S2A_PLAYER_Packet(data);
+        return new S2APlayerPacket(data);
 
       case SteamPacket.A2S_RULES_HEADER:
-        throw new Error('Inimplemented packet A2S_RULES_HEADER recieved'); // return return new A2S_RULES_Packet(Helper.integerFromByteArray(data));
+        throw new Error('Inimplemented packet A2S_RULES_HEADER recieved'); // return return new A2SRulesPacket(Helper.integerFromByteArray(data));
 
       case SteamPacket.S2A_RULES_HEADER:
-        return new S2A_RULES_Packet(data);
+        return new S2ARulesPacket(data);
 
       case SteamPacket.A2S_SERVERQUERY_GETCHALLENGE_HEADER:
         throw new Error('Inimplemented A2S_SERVERQUERY_GETCHALLENGE_HEADER packet recieved'); // return new A2S_SERVERQUERY_GETCHALLENGE_Packet();
 
       case SteamPacket.S2C_CHALLENGE_HEADER:
-        return new S2C_CHALLENGE_Packet(data);
+        return new S2CChallengePacket(data);
 
       case SteamPacket.M2A_SERVER_BATCH_HEADER:
-        return new M2A_SERVER_BATCH_Packet(data);
+        return new M2AServerBatchPacket(data);
 
       case SteamPacket.RCON_GOLDSRC_CHALLENGE_HEADER:
       case SteamPacket.RCON_GOLDSRC_NO_CHALLENGE_HEADER:
@@ -54,7 +54,8 @@ export default class SteamPacketFactory {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  static ReassemblePacket(splitPackets: Buffer[], isCompressed = false, packetChecksum = 0): SteamPacket {
+  static ReassemblePacket(splitPackets: Buffer[], isCompressed = false, packetChecksum = 0):
+  SteamPacket {
     let packetData = Buffer.concat(splitPackets);
 
     if (isCompressed) {

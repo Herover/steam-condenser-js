@@ -12,10 +12,11 @@ export default class ByteBuffer {
 
   constructor(buffer?: Buffer) {
     if (typeof buffer === 'undefined') {
-      buffer = Buffer.alloc(0); // Empty buffer: note \0 byte?
+      this.buffer = Buffer.alloc(0); // Empty buffer: note \0 byte?
+    } else {
+      this.buffer = buffer;
     }
-    this.buffer = buffer;
-    this.capacity = buffer.length;
+    this.capacity = this.buffer.length;
     this.mylimit = this.capacity;
     this.myposition = 0;
   }
@@ -36,14 +37,15 @@ export default class ByteBuffer {
   }
 
   get(length?: number): Buffer {
-    if (typeof length === 'undefined') {
-      length = this.mylimit - this.myposition;
-    } else if (length > this.remaining()) {
+    let l = length;
+    if (typeof l === 'undefined') {
+      l = this.mylimit - this.myposition;
+    } else if (l > this.remaining()) {
       throw new Error('BufferUnderFlorException');
     }
 
-    const data = this.buffer.slice(this.myposition, this.myposition + length);
-    this.myposition += length;
+    const data = this.buffer.slice(this.myposition, this.myposition + l);
+    this.myposition += l;
     return data;
   }
 
@@ -93,11 +95,11 @@ export default class ByteBuffer {
 
   getString(): string {
     let txt = '';
-    while (this.buffer.readInt8(this.myposition) != 0x00) {
+    while (this.buffer.readInt8(this.myposition) !== 0x00) {
       txt += String.fromCharCode(this.buffer.readInt8(this.myposition));
-      this.myposition++;
+      this.myposition += 1;
     }
-    this.myposition++;
+    this.myposition += 1;
     return txt;
   }
 

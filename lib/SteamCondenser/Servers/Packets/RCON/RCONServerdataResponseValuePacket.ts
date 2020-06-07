@@ -1,7 +1,7 @@
 
 import RCONPacket from './RCONPacket';
 
-export default class SERVERDATA_RESPONSE_VALUE_Packet extends RCONPacket {
+export default class RCONServerdataResponseValuePacket extends RCONPacket {
   constructor(id: number, body: Buffer) {
     super(id, body, 0x00);
   }

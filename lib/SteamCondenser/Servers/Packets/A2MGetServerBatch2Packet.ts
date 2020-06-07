@@ -4,7 +4,7 @@ import SteamPacket from './SteamPacket';
 // eslint-disable-next-line import/no-cycle
 import { MasterServer } from '../MasterServer';
 
-export default class A2M_GET_SERVERS_BATCH2_Packet extends SteamPacket {
+export default class A2MGetServerBatch2Packet extends SteamPacket {
   private filter: string;
 
   private regionCode: number;
