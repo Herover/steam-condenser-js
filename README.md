@@ -7,7 +7,7 @@ Work in progress implementation of steam-condenser in Typescript/node.js.
 The library is implemented in Typescript but works fine with JavaScript.
 
 ```javascript
-let { SourceServer, MasterServer } = require("steam-condenser");
+const { SourceServer, MasterServer } = require('steam-condenser');
 
 async function main() {
   const server = new SourceServer(ip);
@@ -46,7 +46,7 @@ async function main() {
     console.log(servers);
   }
   catch(error) {
-      console.error(error);
+    console.error(error);
   }
   finally {
     await ms.disconnect();
