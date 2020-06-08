@@ -9,7 +9,9 @@
   "scripts": {
     "build": "tsc",
     "tsc": "tsc",
-    "lint": "eslint 'lib/*/**/*.{js,ts}'"
+    "jest": "jest",
+    "lint": "eslint 'lib/*/**/*.{js,ts}'",
+    "test": "jest"
   },
   "keywords": [
     "srcds",
@@ -42,6 +44,7 @@
     "eslint-plugin-import": "^2.20.2",
     "eslint-plugin-jsx-a11y": "^6.2.3",
     "eslint-plugin-react": "^7.20.0",
+    "jest": "^26.0.1",
     "typescript": "^3.9.3"
   }
 }
