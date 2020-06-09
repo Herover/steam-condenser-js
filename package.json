@@ -10,7 +10,7 @@
     "build": "tsc",
     "tsc": "tsc",
     "jest": "jest",
-    "lint": "eslint '{lib,test}/*/**/*.{js,ts}'",
+    "lint": "eslint '{lib,tests}/**/*.{js,ts}'",
     "test": "jest"
   },
   "keywords": [

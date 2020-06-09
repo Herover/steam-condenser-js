@@ -16,7 +16,7 @@ test('rejecting doWithin should throw error', async () => {
     await asyncTimer.doWithin(
       new Promise((resolve, reject) => reject(new Error(rejectMessage))),
       1,
-      );
+    );
   } catch (e) {
     err = e;
   }
