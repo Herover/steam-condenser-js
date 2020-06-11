@@ -1,6 +1,6 @@
 {
   "name": "steam-condenser",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "TypeScript port of steam-condenser.",
   "main": "dist/index.js",
   "files": [
