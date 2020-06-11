@@ -16,7 +16,7 @@ export default abstract class GameServer extends Server {
 
   protected ping?: number;
 
-  protected playerHash: {[key: string]: SteamPlayer} = {};
+  protected playerHash?: {[key: string]: SteamPlayer};
 
   protected rulesHash?: {[key: string]: string};
 
@@ -46,7 +46,7 @@ export default abstract class GameServer extends Server {
     if (typeof this.playerHash === 'undefined') {
       await this.updatePlayers(rconPassword);
     }
-    return this.playerHash;
+    return this.playerHash || {};
   }
 
   async getRules(): Promise<{[key: string]: string}> {
@@ -207,6 +207,8 @@ export default abstract class GameServer extends Server {
 
         const attributes = GameServer.GetPlayerStatusAttributes(players[0]);
         players = players.slice(1);
+
+        this.playerHash = {};
 
         for (let i = 0; i < players.length; i += 1) {
           const player = players[i];
