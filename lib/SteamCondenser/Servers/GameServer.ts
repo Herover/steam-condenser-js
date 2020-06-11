@@ -26,7 +26,7 @@ export default abstract class GameServer extends Server {
 
   protected socket?: SteamSocket;
 
-  constructor(address: string, port: number) {
+  constructor(address: string, port?: number) {
     super(address, port);
 
     this.rconAuthenticated = false;
