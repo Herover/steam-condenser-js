@@ -1,9 +1,9 @@
 import BigNum from 'bignum';
 
 export class SteamID {
-  public static ConvertCommunityIDToSteamID(communityID: number | BigNum): string {
+  public static ConvertCommunityIDToSteamID(communityID: string | BigNum): string {
     let comID = communityID;
-    if (typeof comID === 'number') {
+    if (typeof comID === 'string') {
       comID = new BigNum(comID);
     }
 
@@ -17,9 +17,9 @@ export class SteamID {
     return `STEAM_0:${steamID1}:${steamID2.sub(steamID1).div(2)}`;
   }
 
-  public static ConvertCommunityIdToSteamId3(communityID: number | BigNum): string {
+  public static ConvertCommunityIdToSteamId3(communityID: string | BigNum): string {
     let comID = communityID;
-    if (typeof comID === 'number') {
+    if (typeof comID === 'string') {
       comID = new BigNum(comID);
     }
 

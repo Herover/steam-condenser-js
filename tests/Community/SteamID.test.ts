@@ -3,8 +3,10 @@ import { SteamID } from '../../lib/SteamCondenser/Community/SteamID';
 
 describe('SteamID', () => {
   it('should be able to convert a community ID to a steam ID', async () => {
-    const val = SteamID.ConvertCommunityIDToSteamID(new BigNum('76561197960290418'));
+    let val = SteamID.ConvertCommunityIDToSteamID(new BigNum('76561197960290418'));
+    expect(val).toBe('STEAM_0:0:12345');
 
+    val = SteamID.ConvertCommunityIDToSteamID('76561197960290418');
     expect(val).toBe('STEAM_0:0:12345');
   });
 
