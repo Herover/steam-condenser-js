@@ -42,7 +42,7 @@ export default abstract class GameServer extends Server {
     });
   }
 
-  async getPlayers(rconPassword: string): Promise<{[key: string]: SteamPlayer}> {
+  async getPlayers(rconPassword?: string): Promise<{[key: string]: SteamPlayer}> {
     if (typeof this.playerHash === 'undefined') {
       await this.updatePlayers(rconPassword);
     }
