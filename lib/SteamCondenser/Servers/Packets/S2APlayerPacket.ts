@@ -1,6 +1,6 @@
 
 import SteamPacket from './SteamPacket';
-import SteamPlayer from '../SteamPlayer';
+import { SteamPlayer } from '../SteamPlayer';
 
 export default class S2APlayerPacket extends SteamPacket {
   private playerHash: {[key: string]: SteamPlayer};

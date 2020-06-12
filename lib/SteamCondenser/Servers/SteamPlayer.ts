@@ -1,5 +1,4 @@
-
-export default class SteamPlayer {
+class SteamPlayer {
   private connectTime: number;
 
   private id: number;
@@ -212,3 +211,5 @@ export default class SteamPlayer {
     return `#${this.id} "${this.name}", Score: ${this.score}, Time: ${this.connectTime}`;
   }
 }
+
+export { SteamPlayer };

@@ -9,7 +9,7 @@ import A2SRulesPacket from './Packets/A2SRulesPacket';
 import SteamPacket from './Packets/SteamPacket';
 import SteamSocket from './Sockets/SteamSocket';
 import RCONPacket from './Packets/RCON/RCONPacket';
-import SteamPlayer from './SteamPlayer';
+import { SteamPlayer } from './SteamPlayer';
 
 export default abstract class GameServer extends Server {
   protected rconAuthenticated: boolean;
