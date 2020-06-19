@@ -138,7 +138,7 @@ export default abstract class GameServer extends Server {
             return this.handleResponseForRequest(requestType, false);
           }
 
-          throw new Error(`Response was not expected${responsePacket}`);
+          // throw new Error(`Response was not expected${responsePacket}`);
         }
       })
       .catch((err) => {
