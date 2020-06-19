@@ -36,4 +36,8 @@ export interface IInfo {
   tvName?: string;
   serverTags?: string;
   gameId?: number;
+
+  serverIp?: string;
+  isMod?: boolean;
+  modInfo?: { [key: string]: string | number | boolean };
 }
