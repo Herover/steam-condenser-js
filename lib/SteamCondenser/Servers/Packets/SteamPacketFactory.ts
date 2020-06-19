@@ -6,6 +6,7 @@ import S2APlayerPacket from './S2APlayerPacket';
 import S2ARulesPacket from './S2ARulesPacket';
 import A2SInfoPacket from './A2SInfoPacket';
 import M2AServerBatchPacket from './M2AServerBatchPacket';
+import S2AInfoDetailedPacket from './S2AInfoDetailedPacket';
 
 export default class SteamPacketFactory {
   static GetPacketFromData(rawData: Buffer): SteamPacket { // TODO
@@ -16,7 +17,7 @@ export default class SteamPacketFactory {
         return new A2SInfoPacket();
 
       case SteamPacket.S2A_INFO_DETAILED_HEADER:
-        throw new Error('Inimplemented S2A_INFO_DETAILED_HEADER packet recieved'); // return new S2A_INFO_DETAILED_Packet(data);
+        return new S2AInfoDetailedPacket(data);
 
       case SteamPacket.S2A_INFO2_HEADER:
         return new S2AInfo2Packet(data);
