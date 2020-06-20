@@ -65,7 +65,7 @@ class SteamPlayer {
         this.clientPort = Number.parseInt(address[1], 10);
       }
 
-      if (typeof playerData.state !== 'undefined') {
+      if (typeof playerData.rate !== 'undefined') {
         this.rate = Number.parseInt(playerData.rate, 10);
       }
     }
