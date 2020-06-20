@@ -8,7 +8,6 @@ import A2SInfoPacket from './Packets/A2SInfoPacket';
 import A2SRulesPacket from './Packets/A2SRulesPacket';
 import SteamPacket from './Packets/SteamPacket';
 import SteamSocket from './Sockets/SteamSocket';
-import RCONPacket from './Packets/RCON/RCONPacket';
 import { SteamPlayer } from './SteamPlayer';
 
 export default abstract class GameServer extends Server {
@@ -75,7 +74,7 @@ export default abstract class GameServer extends Server {
     await this.updateChallengeNumber();
   }
 
-  handleResponseForRequest(requestType: number, repeatOnFailure = true): Promise<void> {
+  async handleResponseForRequest(requestType: number, repeatOnFailure = true): Promise<void> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let expectedResponse: any; let
       requestPacket: SteamPacket;
@@ -104,46 +103,41 @@ export default abstract class GameServer extends Server {
       throw new Error('socket not set up');
     }
 
-    return this.socket.send(requestPacket)
-      .then(() => {
-        if (typeof this.socket === 'undefined') {
-          throw new Error('socket not set up');
-        }
-        return this.socket.getReply();
-      })
-      .then((responsePacket: SteamPacket | RCONPacket | void) => {
-        if (!(responsePacket instanceof SteamPacket)) {
-          throw new Error(`Invalid response packet ${responsePacket}`);
-        }
-        if (responsePacket instanceof S2AInfoBasePacket) {
-          this.infoHash = responsePacket.getInfo();
-        } else if (responsePacket instanceof S2APlayerPacket) {
-          this.playerHash = responsePacket.getPlayerHash();
-        } else if (responsePacket instanceof S2ARulesPacket) {
-          this.rulesHash = responsePacket.getRulesArray();
-        } else if (responsePacket instanceof S2CChallengePacket) {
-          this.challengeNumber = responsePacket.getChallengeNumber();
-        } else {
-          throw new Error(`Response of type ${responsePacket}cannot be handled by this method.`);
-        }
+    await this.socket.send(requestPacket);
+    if (typeof this.socket === 'undefined') {
+      throw new Error('socket not set up');
+    }
 
-        if (!(responsePacket instanceof expectedResponse)) {
-          // TODO: Logger
-          /* eslint-disable no-console */
-          console.error('was', responsePacket);
-          console.error('expected', expectedResponse);
-          console.error('sent', requestPacket);
-          /* eslint-enable no-console */
-          if (repeatOnFailure) {
-            return this.handleResponseForRequest(requestType, false);
-          }
+    const responsePacket = await this.socket.getReply();
+    if (!(responsePacket instanceof SteamPacket)) {
+      throw new Error(`Invalid response packet ${responsePacket}`);
+    }
 
-          // throw new Error(`Response was not expected${responsePacket}`);
-        }
-      })
-      .catch((err) => {
-        throw err;
-      });
+    if (responsePacket instanceof S2AInfoBasePacket) {
+      this.infoHash = responsePacket.getInfo();
+    } else if (responsePacket instanceof S2APlayerPacket) {
+      this.playerHash = responsePacket.getPlayerHash();
+    } else if (responsePacket instanceof S2ARulesPacket) {
+      this.rulesHash = responsePacket.getRulesArray();
+    } else if (responsePacket instanceof S2CChallengePacket) {
+      this.challengeNumber = responsePacket.getChallengeNumber();
+    } else {
+      throw new Error(`Response of type ${responsePacket}cannot be handled by this method.`);
+    }
+
+    if (!(responsePacket instanceof expectedResponse)) {
+      // TODO: Logger
+      /* eslint-disable no-console */
+      console.error('was', responsePacket);
+      console.error('expected', expectedResponse);
+      console.error('sent', requestPacket);
+      /* eslint-enable no-console */
+      if (repeatOnFailure) {
+        return this.handleResponseForRequest(requestType, false);
+      }
+
+      // throw new Error(`Response was not expected${responsePacket}`);
+    }
   }
 
   isRconAuthenticated(): boolean {
