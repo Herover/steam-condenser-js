@@ -171,50 +171,41 @@ export default abstract class GameServer extends Server {
   }
 
   async updatePlayers(rconPassword?: string): Promise<{[key: string]: SteamPlayer} | boolean> {
-    return this.handleResponseForRequest(GameServer.REQUEST_PLAYER)
-      .then((): Promise<string> => {
-        if (!this.rconAuthenticated) {
-          if (typeof rconPassword === 'undefined') {
-            return Promise.resolve('');
-          }
-          return this.rconAuth(rconPassword)
-            .then(() => this.rconExec('status'))
-            .catch((err) => {
-              throw err;
-            });
-        }
-        return this.rconExec('status');
-      })
-      .then((res?: string) => {
-        if (typeof res === 'undefined' || !res) {
-          return false;
-        }
+    if (typeof this.playerHash === 'undefined') {
+      this.playerHash = {};
+    }
 
-        let players = [];
-        const lines = res.split('\n');
-        for (let i = 0; i < lines.length; i += 1) {
-          const line = lines[i];
-          if (line.startsWith('#') && line !== '#end') {
-            players.push(line.substr(1).trim());
-          }
-        }
+    await this.handleResponseForRequest(GameServer.REQUEST_PLAYER);
 
-        const attributes = GameServer.GetPlayerStatusAttributes(players[0]);
-        players = players.slice(1);
+    if (!this.rconAuthenticated && typeof rconPassword === 'undefined') {
+      return false;
+    }
+    if (!this.rconAuthenticated && typeof rconPassword !== 'undefined') {
+      await this.rconAuth(rconPassword);
+    }
 
-        this.playerHash = {};
+    const status = await this.rconExec('status');
+    let players = [];
+    const lines = status.split('\n');
+    for (let i = 0; i < lines.length; i += 1) {
+      const line = lines[i];
+      if (line.startsWith('#') && line !== '#end') {
+        players.push(line.substr(1).trim());
+      }
+    }
 
-        for (let i = 0; i < players.length; i += 1) {
-          const player = players[i];
-          const playerData = GameServer.SplitPlayerStatus(attributes, player);
-          if (typeof this.playerHash[playerData.name] !== 'undefined') {
-            this.playerHash[playerData.name].addInformation(playerData);
-          }
-        }
+    const attributes = GameServer.GetPlayerStatusAttributes(players[0]);
+    players = players.slice(1);
 
-        return this.playerHash;
-      })
-      .catch((e: Error) => { throw (e); });
+    for (let i = 0; i < players.length; i += 1) {
+      const player = players[i];
+      const playerData = GameServer.SplitPlayerStatus(attributes, player);
+      if (typeof this.playerHash[playerData.name] !== 'undefined') {
+        this.playerHash[playerData.name].addInformation(playerData);
+      }
+    }
+
+    return this.playerHash;
   }
 
   async updateRules(): Promise<void> {
