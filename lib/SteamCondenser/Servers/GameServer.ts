@@ -32,13 +32,10 @@ export default abstract class GameServer extends Server {
   }
 
   async getPing(): Promise<number> {
-    return new Promise((resolve) => {
-      if (typeof this.ping === 'undefined') {
-        resolve(this.updatePing());
-      } else {
-        resolve(this.ping);
-      }
-    });
+    if (typeof this.ping === 'undefined') {
+      return this.updatePing();
+    }
+    return this.ping;
   }
 
   async getPlayers(rconPassword?: string): Promise<{[key: string]: SteamPlayer}> {
