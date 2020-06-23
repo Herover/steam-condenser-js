@@ -46,15 +46,13 @@ export default abstract class GameServer extends Server {
   }
 
   async getRules(): Promise<{[key: string]: string}> {
-    return new Promise((resolve, reject) => {
-      if (typeof this.rulesHash === 'undefined') {
-        this.updateRules()
-          .then(() => { resolve(this.rulesHash); })
-          .catch(reject);
-      } else {
-        resolve(this.rulesHash);
-      }
-    });
+    if (typeof this.rulesHash === 'undefined') {
+      await this.updateRules();
+    }
+    if (typeof this.rulesHash === 'undefined') {
+      throw new Error('Unable to update rules');
+    }
+    return this.rulesHash;
   }
 
   async getServerInfo(): Promise<IInfo> {
